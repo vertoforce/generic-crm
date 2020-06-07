@@ -2,12 +2,13 @@ package googlesheet
 
 import (
 	"context"
-	"crm/backends/backend"
 	"fmt"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 // UpdateItem Updates an item in the crm
-func (c *Client) UpdateItem(ctx context.Context, i *backend.Item, updateFields map[string]interface{}) error {
+func (c *Client) UpdateItem(ctx context.Context, i *crm.Item, updateFields map[string]interface{}) error {
 	item, ok := i.Internal.(*Item)
 	if !ok {
 		return fmt.Errorf("bad internal item")

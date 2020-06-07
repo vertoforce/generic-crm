@@ -2,11 +2,12 @@ package airtable
 
 import (
 	"context"
-	"crm/backends/backend"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 // GetItems gets all items from this airtable crm
-func (c *Client) GetItems(ctx context.Context) ([]*backend.Item, error) {
+func (c *Client) GetItems(ctx context.Context) ([]*crm.Item, error) {
 	items := []struct {
 		ID     string
 		Fields map[string]interface{}
@@ -16,9 +17,9 @@ func (c *Client) GetItems(ctx context.Context) ([]*backend.Item, error) {
 		return nil, err
 	}
 
-	ret := []*backend.Item{}
+	ret := []*crm.Item{}
 	for _, item := range items {
-		ret = append(ret, &backend.Item{
+		ret = append(ret, &crm.Item{
 			Fields: item.Fields,
 			Internal: &Item{
 				airtableID: item.ID,

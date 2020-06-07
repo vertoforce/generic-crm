@@ -4,10 +4,11 @@ package googlesheet
 
 import (
 	"context"
-	"crm/backends/googlesheet/quotatrack"
 	"fmt"
 	"io/ioutil"
 	"time"
+
+	"github.com/vertoforce/generic-crm/backends/googlesheet/quotatrack"
 
 	"golang.org/x/oauth2/google"
 	"gopkg.in/Iwark/spreadsheet.v2"

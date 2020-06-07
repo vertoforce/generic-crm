@@ -2,8 +2,9 @@ package googlesheet
 
 import (
 	"context"
-	"crm/backends/backend"
 	"fmt"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 // GetItem searches for an item based on field values, will return first item that matches
@@ -29,16 +30,16 @@ itemLoop:
 }
 
 // GetItems gets items in this crm converted from the internal item type
-func (c *Client) GetItems(ctx context.Context) ([]*backend.Item, error) {
+func (c *Client) GetItems(ctx context.Context) ([]*crm.Item, error) {
 	items := c.GetItemsInternal(ctx)
 
-	ret := []*backend.Item{}
+	ret := []*crm.Item{}
 	for _, item := range items {
 		newMap := map[string]interface{}{}
 		for key, value := range item.ToMap() {
 			newMap[key] = value
 		}
-		ret = append(ret, &backend.Item{
+		ret = append(ret, &crm.Item{
 			Fields:   newMap,
 			Internal: item,
 		})

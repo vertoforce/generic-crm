@@ -2,12 +2,13 @@ package googlesheet
 
 import (
 	"context"
-	"crm/backends/backend"
 	"sort"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 // RemoveItem removes a single item
-func (c *Client) RemoveItem(ctx context.Context, i *backend.Item) error {
+func (c *Client) RemoveItem(ctx context.Context, i *crm.Item) error {
 	return c.RemoveItemInternal(i.Internal.(*Item))
 }
 

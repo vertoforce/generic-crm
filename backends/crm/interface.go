@@ -1,4 +1,4 @@
-package backend
+package crm
 
 import "context"
 
@@ -9,8 +9,8 @@ type Item struct {
 	Fields   map[string]interface{}
 }
 
-// Backend is the interface that a crm needs to comply to
-type Backend interface {
+// CRM is the interface that a crm needs to comply to
+type CRM interface {
 	GetItems(ctx context.Context) ([]*Item, error)
 	RemoveItem(ctx context.Context, i *Item) error
 	CreateItem(ctx context.Context, i *Item) error

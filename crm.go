@@ -1,12 +1,13 @@
 package crm
 
 import (
-	"crm/backends/airtable"
-	"crm/backends/backend"
-	"crm/backends/googlesheet"
+	"github.com/vertoforce/generic-crm/backends/airtable"
+	"github.com/vertoforce/generic-crm/backends/googlesheet"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
-var backends = []backend.Backend{
+var backends = []crm.CRM{
 	&googlesheet.Client{},
 	&airtable.Client{},
 }

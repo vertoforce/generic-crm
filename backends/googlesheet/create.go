@@ -2,12 +2,13 @@ package googlesheet
 
 import (
 	"context"
-	"crm/backends/backend"
 	"fmt"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 // CreateItem Creates an item from the generic backend type
-func (c *Client) CreateItem(ctx context.Context, i *backend.Item) error {
+func (c *Client) CreateItem(ctx context.Context, i *crm.Item) error {
 	return c.CreateItemFromMap(i.Fields)
 }
 

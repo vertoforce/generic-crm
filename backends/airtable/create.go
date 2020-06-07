@@ -2,11 +2,12 @@ package airtable
 
 import (
 	"context"
-	"crm/backends/backend"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 // CreateItem in the crm
-func (c *Client) CreateItem(ctx context.Context, i *backend.Item) error {
+func (c *Client) CreateItem(ctx context.Context, i *crm.Item) error {
 	request := struct {
 		Fields map[string]interface{} `json:"fields"`
 	}{

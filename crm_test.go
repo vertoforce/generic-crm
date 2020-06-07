@@ -2,11 +2,13 @@ package crm
 
 import (
 	"context"
-	"crm/backends/airtable"
-	"crm/backends/backend"
-	"crm/backends/googlesheet"
 	"os"
 	"testing"
+
+	"github.com/vertoforce/generic-crm/backends/airtable"
+	"github.com/vertoforce/generic-crm/backends/googlesheet"
+
+	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 func TestCRM(t *testing.T) {
@@ -27,13 +29,13 @@ func TestCRM(t *testing.T) {
 	}
 
 	// Test each backend individually
-	backends := []backend.Backend{
-		backend.Backend(co),
-		backend.Backend(a),
+	backends := []crm.CRM{
+		crm.CRM(co),
+		crm.CRM(a),
 	}
 
 	for _, b := range backends {
-		err = b.CreateItem(context.Background(), &backend.Item{
+		err = b.CreateItem(context.Background(), &crm.Item{
 			Fields: map[string]interface{}{
 				"Name": "test",
 				"Item": "test2",
@@ -49,7 +51,7 @@ func TestCRM(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		var toDelete *backend.Item
+		var toDelete *crm.Item
 		for _, item := range items {
 			if item.Fields["Name"] == "test" {
 				toDelete = item
