@@ -1,4 +1,4 @@
-module crm
+module github.com/vertoforce/generic-crm
 
 go 1.13
 
