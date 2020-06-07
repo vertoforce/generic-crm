@@ -2,6 +2,7 @@ package crm
 
 import (
 	"context"
+	"crm/backends/airtable"
 	"crm/backends/backend"
 	"crm/backends/googlesheet"
 	"os"
@@ -19,28 +20,47 @@ func TestCRM(t *testing.T) {
 		return
 	}
 
-	c := backend.Backend(co)
-
-	err = c.CreateItem(context.Background(), &backend.Item{
-		Fields: map[string]interface{}{
-			"Name": "test",
-			"Item": "test2",
-		},
-	})
+	a, err := airtable.New(os.Getenv("AIRTABLE_API_KEY"), os.Getenv("AIRTABLE_BASE_ID"), "Testing")
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	items, err := c.GetItems(context.Background())
-	if err != nil {
-		t.Error(err)
-		return
+	// Test each backend individually
+	backends := []backend.Backend{
+		backend.Backend(co),
+		backend.Backend(a),
 	}
 
-	err = c.RemoveItem(context.Background(), items[0])
-	if err != nil {
-		t.Error(err)
-		return
+	for _, b := range backends {
+		err = b.CreateItem(context.Background(), &backend.Item{
+			Fields: map[string]interface{}{
+				"Name": "test",
+				"Item": "test2",
+			},
+		})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		items, err := b.GetItems(context.Background())
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		var toDelete *backend.Item
+		for _, item := range items {
+			if item.Fields["Name"] == "test" {
+				toDelete = item
+				break
+			}
+		}
+
+		err = b.RemoveItem(context.Background(), toDelete)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 	}
 }
