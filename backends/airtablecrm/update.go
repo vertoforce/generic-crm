@@ -1,4 +1,4 @@
-package airtable
+package airtablecrm
 
 import (
 	"context"

@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/vertoforce/generic-crm/backends/airtable"
-
+	"github.com/vertoforce/generic-crm/backends/airtablecrm"
 	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
@@ -14,7 +13,7 @@ func Example() {
 	// This code does not check for errors
 
 	// Create a object that implements the interface
-	a, _ := airtable.New(os.Getenv("AIRTABLE_API_KEY"), os.Getenv("AIRTABLE_BASE_ID"), "Testing")
+	a, _ := airtablecrm.New(os.Getenv("AIRTABLE_API_KEY"), os.Getenv("AIRTABLE_BASE_ID"), "Testing")
 
 	// Cast it to the interface so we can drop in another frontend at any time
 	c := crm.CRM(a)

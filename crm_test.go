@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/vertoforce/generic-crm/backends/airtable"
+	"github.com/vertoforce/generic-crm/backends/airtablecrm"
 	"github.com/vertoforce/generic-crm/backends/googlesheet"
 
 	"github.com/vertoforce/generic-crm/backends/crm"
@@ -22,7 +22,7 @@ func TestCRM(t *testing.T) {
 		return
 	}
 
-	a, err := airtable.New(os.Getenv("AIRTABLE_API_KEY"), os.Getenv("AIRTABLE_BASE_ID"), "Testing")
+	a, err := airtablecrm.New(os.Getenv("AIRTABLE_API_KEY"), os.Getenv("AIRTABLE_BASE_ID"), "Testing")
 	if err != nil {
 		t.Error(err)
 		return
