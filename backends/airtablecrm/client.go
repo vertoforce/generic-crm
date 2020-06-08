@@ -1,6 +1,6 @@
 package airtablecrm
 
-import "github.com/fabioberger/airtable-go"
+import "github.com/makeitraina/airtable-go"
 
 // Client to interact with airtable as a crm
 type Client struct {

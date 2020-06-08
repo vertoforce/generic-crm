@@ -7,6 +7,8 @@ github.com/fabioberger/airtable-go v3.1.0+incompatible h1:n5dw+HWBc+hytrVL75xe94
 github.com/fabioberger/airtable-go v3.1.0+incompatible/go.mod h1:EoKuSh7EefzhMCyVr6iXPlgFzDgHyZCZ3E5Sg8Cy9GM=
 github.com/golang/protobuf v1.2.0 h1:P3YflyNX/ehuJFLhxviNdFxQPkGK5cDcApsge1SqnvM=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/makeitraina/airtable-go v3.1.0+incompatible h1:nNOpiXXU5BnVxDYIFpUIexSfoFRiwbBeA0EBVQxUuA8=
+github.com/makeitraina/airtable-go v3.1.0+incompatible/go.mod h1:exVVB1g0OjTEuki2ZBE5n2BLVBsnea0tXrbNAJuqzmo=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
