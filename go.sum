@@ -14,8 +14,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0 h1:TivCn/peBQ7UY8ooIcPgZFpTNSz0Q2U6UrFlUfqbe0Q=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
-github.com/vertoforce/airtable-go v0.0.0-20200608173422-392f18dd20a8 h1:uzP9qokiw+OpdvTvv8dWhOopmDKt4lK9/13iWpxnnZE=
-github.com/vertoforce/airtable-go v0.0.0-20200608173422-392f18dd20a8/go.mod h1:S3Eh7I0nD8Ep3GFYxMqx6EPt5OJb/IXupETmxEfMzWY=
+github.com/vertoforce/airtable-go v0.0.0-20200608173945-23baffada355 h1:JwCK6XN7suQkE6WBBxTUIbXdaIkYKREuTWbcz6jhrA0=
+github.com/vertoforce/airtable-go v0.0.0-20200608173945-23baffada355/go.mod h1:S3Eh7I0nD8Ep3GFYxMqx6EPt5OJb/IXupETmxEfMzWY=
 github.com/vertoforce/regexgrouphelp v0.1.1 h1:jCRE5u/QyuV7Gzz/quqz+oejROaJGuaBxPwYq1Oh0GM=
 github.com/vertoforce/regexgrouphelp v0.1.1/go.mod h1:gmKg9fm+WTWA0+rPFFrvbxFSXUJU89woW7j5J5ArQkQ=
 golang.org/x/net v0.0.0-20180724234803-3673e40ba225/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
