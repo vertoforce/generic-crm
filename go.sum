@@ -3,12 +3,10 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/fabioberger/airtable-go v3.1.0+incompatible h1:n5dw+HWBc+hytrVL75xe94EGt7FtNFGDII1tNoWTCAE=
-github.com/fabioberger/airtable-go v3.1.0+incompatible/go.mod h1:EoKuSh7EefzhMCyVr6iXPlgFzDgHyZCZ3E5Sg8Cy9GM=
 github.com/golang/protobuf v1.2.0 h1:P3YflyNX/ehuJFLhxviNdFxQPkGK5cDcApsge1SqnvM=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
-github.com/makeitraina/airtable-go v3.1.0+incompatible h1:nNOpiXXU5BnVxDYIFpUIexSfoFRiwbBeA0EBVQxUuA8=
-github.com/makeitraina/airtable-go v3.1.0+incompatible/go.mod h1:exVVB1g0OjTEuki2ZBE5n2BLVBsnea0tXrbNAJuqzmo=
+github.com/makeitraina/airtable-go v0.0.0-20200225144550-9cdfe723ec67 h1:l/kX4UpgZSaw7u9byikWS7armXukjEaTidQ10usjZAA=
+github.com/makeitraina/airtable-go v0.0.0-20200225144550-9cdfe723ec67/go.mod h1:exVVB1g0OjTEuki2ZBE5n2BLVBsnea0tXrbNAJuqzmo=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
