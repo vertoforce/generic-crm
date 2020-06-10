@@ -69,6 +69,8 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 	safeItems := map[*map[string]interface{}]bool{}
 
 	for newItem := range items {
+		markedSafe := false
+
 		// Update each crm
 		for _, crm := range s.crms {
 			// Check if ths CRM contains this item
@@ -79,7 +81,10 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 				if err != nil {
 					return err
 				}
-				safeItems[&newItemSearch] = true
+				if !markedSafe {
+					safeItems[&newItemSearch] = true
+					markedSafe = true
+				}
 				continue
 			}
 
@@ -88,7 +93,10 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 			if err != nil {
 				return err
 			}
-			safeItems[&newItemSearch] = true
+			if !markedSafe {
+				safeItems[&newItemSearch] = true
+				markedSafe = true
+			}
 		}
 	}
 
