@@ -15,7 +15,7 @@ func Example() {
 	// Create a object that implements the interface
 	a, _ := airtablecrm.New(os.Getenv("AIRTABLE_API_KEY"), os.Getenv("AIRTABLE_BASE_ID"), "Testing")
 
-	// Cast it to the interface so we can drop in another frontend at any time
+	// Cast it to the interface so we can drop in another crm at any time
 	c := crm.CRM(a)
 
 	// Use it as a crm!
@@ -32,6 +32,7 @@ func Example() {
 	for _, item := range items {
 		fmt.Println(item.GetFields()["Name"])
 	}
+	c.RemoveItem(context.Background(), items[0])
 
 	// Output: test
 }
