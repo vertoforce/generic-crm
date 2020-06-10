@@ -30,6 +30,7 @@ type Client struct {
 	Headers           []string                 // Header row of column names.  If this is blank, no headers for this sheet
 	WaitToSynchronize bool                     // Don't synchronize the sheet after every request, wait for Synchronize to be called
 	quota             *quotatrack.Quota        // Quota to track our usage to see if we need to slow down
+	config            *Config
 }
 
 // Config to create a new client
@@ -59,26 +60,32 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 		Service:           spreadsheet.NewServiceWithClient(googleClient),
 		WaitToSynchronize: config.WaitToSynchronize,
 		quota:             quotatrack.New(GoogleSheetUsageLimitTime),
+		config:            config,
 	}
-
-	// Load spreadsheet
-	spreadsheet, err := client.Service.FetchSpreadsheet(GetSpreadsheetID(config.SpreadsheetURL))
-	if err != nil {
-		return nil, fmt.Errorf("failed to load spreadsheet: %s", err)
-	}
-	client.Spreadsheet = &spreadsheet
-
-	// Get sheet
-	sheet, err := spreadsheet.SheetByTitle(config.SheetName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load sheet: %s", err)
-	}
-	client.Sheet = sheet
-
-	// Get headers
-	client.LoadHeaders()
+	client.loadSheet()
 
 	return client, nil
+}
+
+func (c *Client) loadSheet() error {
+	// Load spreadsheet
+	spreadsheet, err := c.Service.FetchSpreadsheet(GetSpreadsheetID(c.config.SpreadsheetURL))
+	if err != nil {
+		return fmt.Errorf("failed to load spreadsheet: %s", err)
+	}
+	c.Spreadsheet = &spreadsheet
+
+	// Get sheet
+	sheet, err := spreadsheet.SheetByTitle(c.config.SheetName)
+	if err != nil {
+		return fmt.Errorf("failed to load sheet: %s", err)
+	}
+	c.Sheet = sheet
+
+	// Get headers
+	c.LoadHeaders()
+
+	return nil
 }
 
 func updateCell(sheet *spreadsheet.Sheet, row int, col int, value string) {

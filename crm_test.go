@@ -83,7 +83,7 @@ func TestCRM(t *testing.T) {
 				break
 			}
 		}
-		err = testCRM.RemoveItem(context.Background(), toDelete)
+		err = testCRM.RemoveItems(context.Background(), toDelete)
 		if err != nil {
 			t.Error(err)
 			return

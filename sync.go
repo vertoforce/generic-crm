@@ -70,7 +70,6 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 
 	for newItem := range items {
 		// Update each crm
-	crmLoop:
 		for _, crm := range s.crms {
 			// Check if ths CRM contains this item
 			newItemSearch := s.searchFunction(newItem)
@@ -81,7 +80,7 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 					return err
 				}
 				safeItems[&newItemSearch] = true
-				break crmLoop
+				continue
 			}
 
 			// Create the item
@@ -107,11 +106,12 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 		itemLoop:
 			for _, item := range items {
 				// Check if this item is safe
+			safeItemSearchLoop:
 				for safeItemSearch := range safeItems {
 					for safeItemKey, safeItemValue := range *safeItemSearch {
 						if itemValue, ok := item.GetFields()[safeItemKey]; !ok || itemValue != safeItemValue {
 							// This item does not match this safe item, try next one
-							continue
+							continue safeItemSearchLoop
 						}
 					}
 					// This item matches this safe item, it is safe
@@ -123,11 +123,9 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 			}
 
 			// Remove all items marked for deletion
-			for _, toRemoveItem := range toRemove {
-				err = crm.RemoveItem(ctx, toRemoveItem)
-				if err != nil {
-					return fmt.Errorf("failed to delete item: %s", err)
-				}
+			err = crm.RemoveItems(ctx, toRemove...)
+			if err != nil {
+				return fmt.Errorf("failed to delete item: %s", err)
 			}
 		}
 	}

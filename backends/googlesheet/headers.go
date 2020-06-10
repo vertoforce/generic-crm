@@ -2,6 +2,7 @@ package googlesheet
 
 // LoadHeaders loads headers from the first row of the sheet into the Client object
 func (c *Client) LoadHeaders() {
+	c.Headers = []string{}
 	if len(c.Sheet.Rows) >= 1 {
 		for _, cell := range c.Sheet.Rows[0] {
 			c.Headers = append(c.Headers, cell.Value)

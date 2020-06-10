@@ -32,7 +32,7 @@ func Example() {
 	for _, item := range items {
 		fmt.Println(item.GetFields()["Name"])
 	}
-	c.RemoveItem(context.Background(), items[0])
+	c.RemoveItems(context.Background(), items[0])
 
 	// Output: test
 }

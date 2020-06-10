@@ -18,7 +18,7 @@ var (
 type CRM interface {
 	GetItems(ctx context.Context) ([]Item, error)
 	GetItem(ctx context.Context, searchFields map[string]interface{}) (Item, error)
-	RemoveItem(ctx context.Context, i Item) error
+	RemoveItems(ctx context.Context, i ...Item) error
 	CreateItem(ctx context.Context, i Item) error
 	UpdateItem(ctx context.Context, i Item, updateFields map[string]interface{}) error
 }

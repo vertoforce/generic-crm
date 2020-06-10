@@ -88,7 +88,7 @@ func TestItems(t *testing.T) {
 	// Purposely make out of order
 	toRemove[0], toRemove[1] = toRemove[1], toRemove[0]
 	for _, toRemoveI := range toRemove {
-		err = c.RemoveItem(ctx, toRemoveI)
+		err = c.RemoveItems(ctx, toRemoveI)
 		if err != nil {
 			t.Error(err)
 		}
@@ -106,7 +106,7 @@ func TestItems(t *testing.T) {
 	}
 
 	for _, toRemoveI := range toRemove {
-		err = c.RemoveItem(ctx, toRemoveI)
+		err = c.RemoveItems(ctx, toRemoveI)
 		if err != nil {
 			t.Error(err)
 		}

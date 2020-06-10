@@ -36,6 +36,7 @@ itemLoop:
 
 // GetItems returns all the items in the sheet
 func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
+	// TODO: Reload sheet if we haven't in some time (to make sure we got the latest updates)
 	items := []crm.Item{}
 	for r := 1; r < c.NumItems()+1; r++ {
 		row := c.Sheet.Rows[r]
