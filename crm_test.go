@@ -1,15 +1,18 @@
-package crm
+package crm_test
 
 import (
 	"context"
 	"os"
 	"testing"
 
+	crm "github.com/vertoforce/generic-crm"
 	"github.com/vertoforce/generic-crm/backends/airtablecrm"
 	"github.com/vertoforce/generic-crm/backends/googlesheet"
-
-	"github.com/vertoforce/generic-crm/backends/crm"
 )
+
+var crms = []crm.CRM{
+	&airtablecrm.Client{},
+}
 
 func TestCRM(t *testing.T) {
 	co, err := googlesheet.New(context.Background(), &googlesheet.Config{

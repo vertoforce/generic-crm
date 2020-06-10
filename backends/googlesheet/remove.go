@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"github.com/vertoforce/generic-crm/backends/crm"
+	crm "github.com/vertoforce/generic-crm"
 )
 
 // RemoveItem removes a single item

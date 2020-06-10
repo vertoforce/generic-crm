@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vertoforce/generic-crm/backends/crm"
+	crm "github.com/vertoforce/generic-crm"
 )
 
 // GetItem searches for an item based on field values, will return first item that matches

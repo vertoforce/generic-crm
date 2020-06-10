@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vertoforce/generic-crm/backends/crm"
+	crm "github.com/vertoforce/generic-crm"
 )
 
 // UpdateItem Updates an item in the crm

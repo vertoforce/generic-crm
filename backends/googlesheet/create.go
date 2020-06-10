@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vertoforce/generic-crm/backends/crm"
+	crm "github.com/vertoforce/generic-crm"
 )
 
 // CreateItem Creates an item from the generic backend type

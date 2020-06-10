@@ -1,13 +1,18 @@
 package crm
 
-import (
-	"github.com/vertoforce/generic-crm/backends/airtablecrm"
-	"github.com/vertoforce/generic-crm/backends/googlesheet"
+import "context"
 
-	"github.com/vertoforce/generic-crm/backends/crm"
-)
+// Item is a generic item from the crm
+type Item struct {
+	// Internal item fields, usually left untouched
+	Internal interface{}
+	Fields   map[string]interface{}
+}
 
-var backends = []crm.CRM{
-	&googlesheet.Client{},
-	&airtablecrm.Client{},
+// CRM is the interface that a crm needs to comply to
+type CRM interface {
+	GetItems(ctx context.Context) ([]*Item, error)
+	RemoveItem(ctx context.Context, i *Item) error
+	CreateItem(ctx context.Context, i *Item) error
+	UpdateItem(ctx context.Context, i *Item, updateFields map[string]interface{}) error
 }

@@ -1,12 +1,12 @@
-package crm
+package crm_test
 
 import (
 	"context"
 	"fmt"
 	"os"
 
+	crm "github.com/vertoforce/generic-crm"
 	"github.com/vertoforce/generic-crm/backends/airtablecrm"
-	"github.com/vertoforce/generic-crm/backends/crm"
 )
 
 func Example() {

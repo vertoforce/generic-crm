@@ -3,7 +3,7 @@ package airtablecrm
 import (
 	"context"
 
-	"github.com/vertoforce/generic-crm/backends/crm"
+	crm "github.com/vertoforce/generic-crm"
 )
 
 // GetItems gets all items from this airtable crm
