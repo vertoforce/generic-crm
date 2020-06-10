@@ -2,6 +2,7 @@ package crm
 
 import (
 	"context"
+	"reflect"
 	"time"
 )
 
@@ -30,7 +31,7 @@ var DefaultCompareFunction = func(a Item, b Item) bool {
 	if !ok {
 		return false
 	}
-	return IDA == IDB
+	return reflect.DeepEqual(IDA, IDB)
 }
 
 // Synchronize Updates a list of CRMs given a stream of new items
