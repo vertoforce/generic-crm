@@ -7,9 +7,9 @@ type Item struct {
 	client    *Client
 }
 
-// ToMap Returns a map of header -> value
-func (i *Item) ToMap() map[string]string {
-	ret := map[string]string{}
+// GetFields Returns a map of header -> value
+func (i *Item) GetFields() map[string]interface{} {
+	ret := map[string]interface{}{}
 	for c, value := range i.Fields {
 		// Break if this row has too many values
 		if c >= len(i.client.Headers) {
@@ -20,10 +20,4 @@ func (i *Item) ToMap() map[string]string {
 	}
 
 	return ret
-}
-
-// UnmarshalItem Fills an item in to a struct using the struct names -> mapping to -> header names in the sheet
-func UnmarshalItem(item *Item, v interface{}) error {
-	// TODO:
-	return nil
 }

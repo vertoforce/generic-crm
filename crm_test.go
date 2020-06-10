@@ -11,6 +11,7 @@ import (
 )
 
 var crms = []crm.CRM{
+	&googlesheet.Client{},
 	&airtablecrm.Client{},
 }
 
@@ -38,7 +39,7 @@ func TestCRM(t *testing.T) {
 	}
 
 	for _, b := range backends {
-		err = b.CreateItem(context.Background(), &crm.Item{
+		err = b.CreateItem(context.Background(), &crm.DefaultItem{
 			Fields: map[string]interface{}{
 				"Name": "test",
 				"Item": "test2",
@@ -54,9 +55,9 @@ func TestCRM(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		var toDelete *crm.Item
+		var toDelete crm.Item
 		for _, item := range items {
-			if item.Fields["Name"] == "test" {
+			if item.GetFields()["Name"] == "test" {
 				toDelete = item
 				break
 			}

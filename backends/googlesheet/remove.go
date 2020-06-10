@@ -2,19 +2,20 @@ package googlesheet
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	crm "github.com/vertoforce/generic-crm"
 )
 
 // RemoveItem removes a single item
-func (c *Client) RemoveItem(ctx context.Context, i *crm.Item) error {
-	return c.RemoveItemInternal(i.Internal.(*Item))
-}
-
-// RemoveItemInternal removes a single item
-func (c *Client) RemoveItemInternal(item *Item) error {
-	return c.RemoveItems(Items{item})
+func (c *Client) RemoveItem(ctx context.Context, i crm.Item) error {
+	// Convert to google sheet item
+	googleSheetItem, ok := i.(*Item)
+	if !ok {
+		return fmt.Errorf("invalid item")
+	}
+	return c.RemoveItems(Items{googleSheetItem})
 }
 
 // RemoveItems from the CRM, NOTE - YOU MUST fetch the items again after removing items because the row numbers will change

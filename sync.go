@@ -18,15 +18,15 @@ const (
 // For example in synchronization when checking if an item should be updated with new incoming items.
 //
 // See the DefaultCompareFunction for an example
-type CompareFunction func(a *Item, b *Item) bool
+type CompareFunction func(a Item, b Item) bool
 
 // DefaultCompareFunction compares the "ID" field of each item
-var DefaultCompareFunction = func(a *Item, b *Item) bool {
-	IDA, ok := a.Fields["ID"]
+var DefaultCompareFunction = func(a Item, b Item) bool {
+	IDA, ok := a.GetFields()["ID"]
 	if !ok {
 		return false
 	}
-	IDB, ok := b.Fields["ID"]
+	IDB, ok := b.GetFields()["ID"]
 	if !ok {
 		return false
 	}
@@ -38,9 +38,9 @@ var DefaultCompareFunction = func(a *Item, b *Item) bool {
 // It loops through the provided channel of new items, and for each CRM
 // 	* updates the old item (if it exists using the CompareFunction)
 // 	* creates the new item (since it does not exist in the crm)
-func Synchronize(ctx context.Context, items chan *Item, compareFunction CompareFunction, crms ...CRM) error {
+func Synchronize(ctx context.Context, items chan Item, compareFunction CompareFunction, crms ...CRM) error {
 	// First cache the current contents of the crms so we don't need to fetch it each time
-	CrmsOldItems := [][]*Item{}
+	CrmsOldItems := [][]Item{}
 	for _, crm := range crms {
 		oldItems, err := crm.GetItems(ctx)
 		if err != nil {
@@ -63,7 +63,7 @@ func Synchronize(ctx context.Context, items chan *Item, compareFunction CompareF
 			for _, oldItem := range CrmsOldItems[crmI] {
 				if compareFunction(oldItem, newItem) {
 					// We have this item, update it
-					err := crm.UpdateItem(ctx, oldItem, newItem.Fields)
+					err := crm.UpdateItem(ctx, oldItem, newItem.GetFields())
 					if err != nil {
 						return err
 					}

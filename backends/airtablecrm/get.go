@@ -7,7 +7,7 @@ import (
 )
 
 // GetItems gets all items from this airtable crm
-func (c *Client) GetItems(ctx context.Context) ([]*crm.Item, error) {
+func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
 	items := []struct {
 		ID     string
 		Fields map[string]interface{}
@@ -17,13 +17,11 @@ func (c *Client) GetItems(ctx context.Context) ([]*crm.Item, error) {
 		return nil, err
 	}
 
-	ret := []*crm.Item{}
+	ret := []crm.Item{}
 	for _, item := range items {
-		ret = append(ret, &crm.Item{
-			Fields: item.Fields,
-			Internal: &Item{
-				airtableID: item.ID,
-			},
+		ret = append(ret, &Item{
+			fields:     item.Fields,
+			airtableID: item.ID,
 		})
 	}
 

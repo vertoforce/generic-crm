@@ -3,54 +3,40 @@ package googlesheet
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	crm "github.com/vertoforce/generic-crm"
 )
 
 // GetItem searches for an item based on field values, will return first item that matches
-func (c *Client) GetItem(ctx context.Context, searchValues map[string]string) (*Item, error) {
+// It loops through all items searching for it (it's in memory anyway)
+func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{}) (crm.Item, error) {
 	subContext, cancel := context.WithCancel(ctx)
+	defer cancel()
+	items, err := c.GetItems(subContext)
+	if err != nil {
+		return nil, err
+	}
 itemLoop:
-	for _, item := range c.GetItemsInternal(subContext) {
-		itemMap := item.ToMap()
+	for _, item := range items {
+		itemMap := item.GetFields()
 		// Check if this item matches
-		for key, value := range searchValues {
-			if val, ok := itemMap[key]; !ok || val != value {
+		for searchKey, searchValue := range searchValues {
+			if foundValue, ok := itemMap[searchKey]; !ok || !reflect.DeepEqual(foundValue, searchValue) {
 				// This didn't match
 				continue itemLoop
 			}
 		}
 		// Found it!
-		cancel()
 		return item, nil
 	}
 
-	cancel()
 	return nil, fmt.Errorf("item not found")
 }
 
-// GetItems gets items in this crm converted from the internal item type
-func (c *Client) GetItems(ctx context.Context) ([]*crm.Item, error) {
-	items := c.GetItemsInternal(ctx)
-
-	ret := []*crm.Item{}
-	for _, item := range items {
-		newMap := map[string]interface{}{}
-		for key, value := range item.ToMap() {
-			newMap[key] = value
-		}
-		ret = append(ret, &crm.Item{
-			Fields:   newMap,
-			Internal: item,
-		})
-	}
-
-	return ret, nil
-}
-
-// GetItemsInternal returns a channel of all the items in the sheet
-func (c *Client) GetItemsInternal(ctx context.Context) []*Item {
-	items := []*Item{}
+// GetItems returns all the items in the sheet
+func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
+	items := []crm.Item{}
 	for r := 1; r < c.NumItems()+1; r++ {
 		row := c.Sheet.Rows[r]
 
@@ -72,7 +58,7 @@ func (c *Client) GetItemsInternal(ctx context.Context) []*Item {
 		items = append(items, item)
 	}
 
-	return items
+	return items, nil
 }
 
 // NumItems Gets the number of items in the sheet.  If headers are enabled, it does NOT count the first row

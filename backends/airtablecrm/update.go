@@ -8,10 +8,10 @@ import (
 )
 
 // UpdateItem in the crm
-func (c *Client) UpdateItem(ctx context.Context, i *crm.Item, updateFields map[string]interface{}) error {
-	internalItem, ok := i.Internal.(*Item)
+func (c *Client) UpdateItem(ctx context.Context, i crm.Item, updateFields map[string]interface{}) error {
+	airtableItem, ok := i.(*Item)
 	if !ok {
-		return fmt.Errorf("bad item")
+		return fmt.Errorf("Invalid item")
 	}
-	return c.client.UpdateRecord(c.tableName, internalItem.airtableID, updateFields, nil, true)
+	return c.client.UpdateRecord(c.tableName, airtableItem.airtableID, updateFields, nil, true)
 }

@@ -22,7 +22,7 @@ func Example() {
 	// Note that the fields must already bet set up in your connected CRM.
 	// So in this example, you must have the first row of your google sheet contain the header "Name"
 	// Or for airtable, you must have a column named "Name"
-	c.CreateItem(context.Background(), &crm.Item{
+	c.CreateItem(context.Background(), &crm.DefaultItem{
 		Fields: map[string]interface{}{
 			"Name": "test",
 		},
@@ -30,7 +30,7 @@ func Example() {
 
 	items, _ := c.GetItems(context.Background())
 	for _, item := range items {
-		fmt.Println(item.Fields["Name"])
+		fmt.Println(item.GetFields()["Name"])
 	}
 
 	// Output: test

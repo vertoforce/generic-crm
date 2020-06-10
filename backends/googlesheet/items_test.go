@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	crm "github.com/vertoforce/generic-crm"
 )
 
 func getTestingClient() (*Client, error) {
@@ -16,6 +18,8 @@ func getTestingClient() (*Client, error) {
 }
 
 func TestItems(t *testing.T) {
+	ctx := context.Background()
+
 	c, err := getTestingClient()
 	if err != nil {
 		t.Error(err)
@@ -32,12 +36,16 @@ func TestItems(t *testing.T) {
 	}
 
 	// Get the items
-	items := c.GetItemsInternal(context.Background())
+	items, err := c.GetItems(context.Background())
+	if err != nil {
+		t.Error(err)
+		return
+	}
 	count := 0
-	var lastItem *Item
-	toRemove := Items{}
+	var lastItem crm.Item
+	toRemove := []crm.Item{}
 	for _, item := range items {
-		if item.ToMap()["Name"] != fmt.Sprintf("Name %d", count) {
+		if item.GetFields()["Name"] != fmt.Sprintf("Name %d", count) {
 			t.Errorf("Incorrect name for item %d", count)
 			return
 		}
@@ -52,7 +60,7 @@ func TestItems(t *testing.T) {
 	}
 
 	// Try updating the first item
-	err = lastItem.UpdateInternal(map[string]interface{}{
+	err = c.UpdateItem(ctx, lastItem, map[string]interface{}{
 		"Name": "New name",
 	})
 	if err != nil {
@@ -60,7 +68,7 @@ func TestItems(t *testing.T) {
 	}
 
 	// Check to make sure it updated
-	_, err = c.GetItem(context.Background(), map[string]string{
+	_, err = c.GetItem(context.Background(), map[string]interface{}{
 		"Name": "New name",
 	})
 	if err != nil {
@@ -78,20 +86,29 @@ func TestItems(t *testing.T) {
 	}
 
 	// Purposely make out of order
-	toRemove.Swap(0, 1)
-	err = c.RemoveItems(toRemove)
-	if err != nil {
-		t.Error(err)
+	toRemove[0], toRemove[1] = toRemove[1], toRemove[0]
+	for _, toRemoveI := range toRemove {
+		err = c.RemoveItem(ctx, toRemoveI)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 
 	// Fetch all remaining items and remove them
-	toRemove = Items{}
-	for _, item := range c.GetItemsInternal(context.Background()) {
+	toRemove = []crm.Item{}
+	items, err = c.GetItems(ctx)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for _, item := range items {
 		toRemove = append(toRemove, item)
 	}
 
-	err = c.RemoveItems(toRemove)
-	if err != nil {
-		t.Error(err)
+	for _, toRemoveI := range toRemove {
+		err = c.RemoveItem(ctx, toRemoveI)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 }

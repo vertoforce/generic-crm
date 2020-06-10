@@ -8,8 +8,8 @@ import (
 )
 
 // CreateItem Creates an item from the generic backend type
-func (c *Client) CreateItem(ctx context.Context, i *crm.Item) error {
-	return c.CreateItemFromMap(i.Fields)
+func (c *Client) CreateItem(ctx context.Context, i crm.Item) error {
+	return c.CreateItemFromMap(i.GetFields())
 }
 
 // CreateItemFromValues Creates an item by creating a new row
