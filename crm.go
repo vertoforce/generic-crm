@@ -2,7 +2,8 @@ package crm
 
 import "context"
 
-// Item is a generic item from the crm
+// Item is a generic item from the crm.
+// TODO: Change this to an interface instead of using Internal to be used internally
 type Item struct {
 	// Internal item fields, usually left untouched
 	Internal interface{}
