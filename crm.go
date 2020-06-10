@@ -1,6 +1,14 @@
 package crm
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
+
+// Standardized errors
+var (
+	ErrItemNotFound = fmt.Errorf("item not found")
+)
 
 // CRM is a set of generic items.
 // You can fetch get, remove, or update items in a crm.
@@ -9,7 +17,7 @@ import "context"
 // so a Synchronize function is provided on crms also.
 type CRM interface {
 	GetItems(ctx context.Context) ([]Item, error)
-	// TODO:	GetItem(ctx context.Context, searchFields )
+	GetItem(ctx context.Context, searchFields map[string]interface{}) (Item, error)
 	RemoveItem(ctx context.Context, i Item) error
 	CreateItem(ctx context.Context, i Item) error
 	UpdateItem(ctx context.Context, i Item, updateFields map[string]interface{}) error

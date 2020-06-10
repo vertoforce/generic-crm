@@ -39,6 +39,7 @@ func TestCRM(t *testing.T) {
 	}
 
 	for _, b := range backends {
+		// Create an item
 		err = b.CreateItem(context.Background(), &crm.DefaultItem{
 			Fields: map[string]interface{}{
 				"Name": "test",
@@ -50,11 +51,25 @@ func TestCRM(t *testing.T) {
 			return
 		}
 
+		// Get specific item
+		item, err := b.GetItem(context.Background(), map[string]interface{}{"Name": "test"})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if item.GetFields()["Name"] != "test" {
+			t.Errorf("wrong item")
+			return
+		}
+
+		// Get all items
 		items, err := b.GetItems(context.Background())
 		if err != nil {
 			t.Error(err)
 			return
 		}
+
+		// Delete our created item
 		var toDelete crm.Item
 		for _, item := range items {
 			if item.GetFields()["Name"] == "test" {
@@ -62,7 +77,6 @@ func TestCRM(t *testing.T) {
 				break
 			}
 		}
-
 		err = b.RemoveItem(context.Background(), toDelete)
 		if err != nil {
 			t.Error(err)

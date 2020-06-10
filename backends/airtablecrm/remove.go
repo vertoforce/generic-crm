@@ -13,5 +13,5 @@ func (c *Client) RemoveItem(ctx context.Context, i crm.Item) error {
 	if !ok {
 		return fmt.Errorf("Invalid item")
 	}
-	return c.client.DestroyRecord(c.tableName, airtableItem.airtableID)
+	return c.client.DestroyRecord(c.tableName, airtableItem.AirtableID)
 }

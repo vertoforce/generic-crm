@@ -13,5 +13,5 @@ func (c *Client) UpdateItem(ctx context.Context, i crm.Item, updateFields map[st
 	if !ok {
 		return fmt.Errorf("Invalid item")
 	}
-	return c.client.UpdateRecord(c.tableName, airtableItem.airtableID, updateFields, nil, true)
+	return c.client.UpdateRecord(c.tableName, airtableItem.AirtableID, updateFields, nil, true)
 }
