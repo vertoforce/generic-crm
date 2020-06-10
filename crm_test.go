@@ -15,21 +15,19 @@ var crms = []crm.CRM{
 	&airtablecrm.Client{},
 }
 
-func TestCRM(t *testing.T) {
+func getTestCRMs() ([]crm.CRM, error) {
 	co, err := googlesheet.New(context.Background(), &googlesheet.Config{
 		GoogleClientSecretFile: os.Getenv("GoogleClientSecretFile"),
 		SpreadsheetURL:         os.Getenv("TESTING_SPREADSHEET_URL"),
 		SheetName:              "Sheet1",
 	})
 	if err != nil {
-		t.Error(err)
-		return
+		return nil, err
 	}
 
 	a, err := airtablecrm.New(os.Getenv("AIRTABLE_API_KEY"), os.Getenv("AIRTABLE_BASE_ID"), "Testing")
 	if err != nil {
-		t.Error(err)
-		return
+		return nil, err
 	}
 
 	// Test each backend individually
@@ -37,10 +35,18 @@ func TestCRM(t *testing.T) {
 		crm.CRM(co),
 		crm.CRM(a),
 	}
+	return backends, nil
+}
 
-	for _, b := range backends {
+func TestCRM(t *testing.T) {
+	testCRMs, err := getTestCRMs()
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, testCRM := range testCRMs {
 		// Create an item
-		err = b.CreateItem(context.Background(), &crm.DefaultItem{
+		err = testCRM.CreateItem(context.Background(), &crm.DefaultItem{
 			Fields: map[string]interface{}{
 				"Name": "test",
 				"Item": "test2",
@@ -52,7 +58,7 @@ func TestCRM(t *testing.T) {
 		}
 
 		// Get specific item
-		item, err := b.GetItem(context.Background(), map[string]interface{}{"Name": "test"})
+		item, err := testCRM.GetItem(context.Background(), map[string]interface{}{"Name": "test"})
 		if err != nil {
 			t.Error(err)
 			return
@@ -63,7 +69,7 @@ func TestCRM(t *testing.T) {
 		}
 
 		// Get all items
-		items, err := b.GetItems(context.Background())
+		items, err := testCRM.GetItems(context.Background())
 		if err != nil {
 			t.Error(err)
 			return
@@ -77,7 +83,7 @@ func TestCRM(t *testing.T) {
 				break
 			}
 		}
-		err = b.RemoveItem(context.Background(), toDelete)
+		err = testCRM.RemoveItem(context.Background(), toDelete)
 		if err != nil {
 			t.Error(err)
 			return
