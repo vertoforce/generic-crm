@@ -11,11 +11,7 @@ import (
 // CreateItem in the crm
 func (c *Client) CreateItem(ctx context.Context, i crm.Item) error {
 	query, values := c.generateCreateQueryFromItem(i)
-	statement, err := c.db.Prepare(query)
-	if err != nil {
-		return err
-	}
-	_, err = statement.ExecContext(ctx, values...)
+	_, err := c.db.QueryxContext(ctx, query, values...)
 	if err != nil {
 		return err
 	}

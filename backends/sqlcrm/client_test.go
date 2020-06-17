@@ -39,6 +39,13 @@ func TestClient(t *testing.T) {
 		return
 	}
 
+	// Update that item
+	err = c.UpdateItem(context.Background(), item, map[string]interface{}{"name": "new name"})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	items, err := c.GetItems(context.Background())
 	if err != nil {
 		t.Error(err)

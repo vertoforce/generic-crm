@@ -8,6 +8,7 @@ import (
 	crm "github.com/vertoforce/generic-crm"
 	"github.com/vertoforce/generic-crm/backends/airtablecrm"
 	"github.com/vertoforce/generic-crm/backends/googlesheet"
+	"github.com/vertoforce/generic-crm/backends/sqlcrm"
 )
 
 var crms = []crm.CRM{
