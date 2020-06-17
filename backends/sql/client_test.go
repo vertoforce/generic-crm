@@ -26,6 +26,19 @@ func TestClient(t *testing.T) {
 		return
 	}
 
+	// Try to get that specific item
+	item, err := c.GetItem(context.Background(), map[string]interface{}{
+		"name": "Name 1",
+	})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if fmt.Sprintf("%s", item.GetFields()["name"]) != "Name 1" {
+		t.Errorf("Did not get expected item")
+		return
+	}
+
 	items, err := c.GetItems(context.Background())
 	if err != nil {
 		t.Error(err)
