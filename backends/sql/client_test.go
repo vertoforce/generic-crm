@@ -35,6 +35,9 @@ func TestClient(t *testing.T) {
 		t.Errorf("Not enough items")
 	}
 	for _, item := range items {
-		fmt.Printf("%s\n", item.GetFields()["name"])
+		for key, value := range item.GetFields() {
+			fmt.Printf("%s:%s ", key, value)
+		}
+		fmt.Println()
 	}
 }
