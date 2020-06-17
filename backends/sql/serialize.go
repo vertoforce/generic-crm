@@ -29,4 +29,26 @@ func serializeFields(fields map[string]interface{}) map[string]interface{} {
 	return ret
 }
 
-// TODO: Add deserialize function
+// deserializeFields will look for JSON fields and unmarshal them
+func deserializeFields(fields map[string]interface{}) map[string]interface{} {
+	ret := map[string]interface{}{}
+	for key, value := range fields {
+		switch value.(type) {
+		case []byte:
+			// Try to unmarshal
+			var newValue interface{}
+			err := json.Unmarshal(value.([]byte), &newValue)
+			if err != nil {
+				// Just convert this to a string
+				ret[key] = fmt.Sprintf("%s", value)
+				continue
+			}
+			// We did it, use this new value
+			ret[key] = value
+		default:
+			// Leave as is
+			ret[key] = value
+		}
+	}
+	return ret
+}

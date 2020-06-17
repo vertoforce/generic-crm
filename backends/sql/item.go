@@ -7,5 +7,5 @@ type Item struct {
 
 // GetFields of the sql item
 func (i *Item) GetFields() map[string]interface{} {
-	return i.Fields
+	return deserializeFields(i.Fields)
 }

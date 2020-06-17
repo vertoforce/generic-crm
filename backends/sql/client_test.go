@@ -34,7 +34,7 @@ func TestClient(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if fmt.Sprintf("%s", item.GetFields()["name"]) != "Name 1" {
+	if item.GetFields()["name"].(string) != "Name 1" {
 		t.Errorf("Did not get expected item")
 		return
 	}
