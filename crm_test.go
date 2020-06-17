@@ -13,6 +13,7 @@ import (
 var crms = []crm.CRM{
 	&googlesheet.Client{},
 	&airtablecrm.Client{},
+	&sqlcrm.Client{},
 }
 
 func getTestCRMs() ([]crm.CRM, error) {
