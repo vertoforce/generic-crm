@@ -5,6 +5,9 @@ go 1.13
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fabioberger/airtable-go v3.1.0+incompatible // indirect
+	github.com/go-sql-driver/mysql v1.5.0
+	github.com/jmoiron/sqlx v1.2.0
+	github.com/lib/pq v1.7.0
 	github.com/makeitraina/airtable-go v3.1.0+incompatible // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/vertoforce/airtable-go v0.0.0-20200608173945-23baffada355

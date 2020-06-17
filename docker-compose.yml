@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: db
+    ports:
+      - 3306:3306
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+      - MYSQL_ROOT_PASSWORD=pass
+    ports:
+      - 80:80
+    restart: on-failure
