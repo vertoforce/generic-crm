@@ -53,4 +53,11 @@ func TestClient(t *testing.T) {
 		}
 		fmt.Println()
 	}
+
+	// Remove all items
+	err = c.RemoveItems(context.Background(), items...)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 }

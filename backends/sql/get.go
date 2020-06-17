@@ -31,12 +31,10 @@ func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
 
 // GetItem gets a single item from this sql crm
 func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{}) (crm.Item, error) {
-	whereQueries := []string{}
-	for key, value := range serializeFields(searchValues) {
-		whereQueries = append(whereQueries, fmt.Sprintf("%s=\"%s\"", key, value))
-
-	}
-	rows, err := c.db.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s WHERE %s", strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""), strings.Join(whereQueries, " AND ")))
+	rows, err := c.db.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s WHERE %s",
+		strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""),
+		fieldsToSQLWhere(serializeFields(searchValues)),
+	))
 	if err != nil {
 		return nil, err
 	}
@@ -55,4 +53,15 @@ func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{
 	}
 
 	return ret[0], nil
+}
+
+// fieldToSQLWhere Converts a list of fields to a SQL WHERE query (just the part after the WHERE)
+//
+// EX: map[string]interface{}{"name": "test", "item": "item"} -> name="test" AND item="item"
+func fieldsToSQLWhere(fields map[string]interface{}) string {
+	whereQueries := []string{}
+	for key, value := range serializeFields(fields) {
+		whereQueries = append(whereQueries, fmt.Sprintf("%s=\"%s\"", key, value))
+	}
+	return strings.Join(whereQueries, " AND ")
 }
