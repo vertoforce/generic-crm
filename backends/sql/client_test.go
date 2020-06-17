@@ -4,10 +4,23 @@ import (
 	"context"
 	"fmt"
 	"testing"
+
+	crm "github.com/vertoforce/generic-crm"
 )
 
 func TestClient(t *testing.T) {
 	c, err := NewCRM("root:pass@tcp(127.0.0.1:3306)/db", "test")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	err = c.CreateItem(context.Background(), &crm.DefaultItem{
+		Fields: map[string]interface{}{
+			"name": "Name 1",
+			"item": "item",
+		},
+	})
 	if err != nil {
 		t.Error(err)
 		return

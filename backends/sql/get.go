@@ -11,7 +11,7 @@ import (
 
 // GetItems gets all items from this sql crm
 func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
-	rows, err := c.db.Queryx(fmt.Sprintf("SELECT * FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", "")))
+	rows, err := c.db.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", "")))
 	if err != nil {
 		return nil, err
 	}
