@@ -54,6 +54,11 @@ func TestClient(t *testing.T) {
 	if len(items) == 0 {
 		t.Errorf("Not enough items")
 	}
+	// Make sure we updated this item
+	if items[0].GetFields()["name"].(string) != "new name" {
+		t.Errorf("Update did not work")
+		return
+	}
 	for _, item := range items {
 		for key, value := range item.GetFields() {
 			fmt.Printf("%s:%s ", key, value)
