@@ -9,6 +9,9 @@ import (
 )
 
 // CreateItem in the crm
+//
+// Note that this will serialize special types stored in the database.
+// So if you store a map or []string, it will serialize it to store it as JSON
 func (c *Client) CreateItem(ctx context.Context, i crm.Item) error {
 	query, values := c.generateCreateQueryFromItem(i)
 	_, err := c.db.QueryxContext(ctx, query, values...)

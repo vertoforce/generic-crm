@@ -3,6 +3,7 @@ package sqlcrm
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 )
 
 // serializeFields Converts an item's fields to how they will be stored in the crm.
@@ -14,8 +15,8 @@ func serializeFields(fields map[string]interface{}) map[string]interface{} {
 	for key, value := range fields {
 		// Convert the value if it needs to be changed
 		var valueP interface{}
-		switch value.(type) {
-		case []string, map[string]interface{}:
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Array, reflect.Map, reflect.Struct:
 			// Convert to json
 			json, _ := json.Marshal(value)
 			valueP = fmt.Sprintf("\"%s\"", json)

@@ -10,6 +10,9 @@ import (
 )
 
 // GetItems gets all items from this sql crm
+//
+// Note that this will deserialize special types stored in the database.
+// So if you store a map or []string, it will deserialize it back in to the appropriate type
 func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
 	rows, err := c.db.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", "")))
 	if err != nil {
