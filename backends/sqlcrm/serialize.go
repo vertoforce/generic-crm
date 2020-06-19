@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 // serializeFields Converts an item's fields to how they will be stored in the crm.
@@ -20,6 +21,8 @@ func serializeFields(fields map[string]interface{}) map[string]interface{} {
 			// Convert to json
 			json, _ := json.Marshal(value)
 			valueP = fmt.Sprintf("\"%s\"", json)
+		case reflect.TypeOf(time.Time{}).Kind():
+			valueP = value
 		default:
 			valueP = value
 		}
