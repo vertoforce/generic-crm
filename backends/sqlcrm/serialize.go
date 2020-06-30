@@ -16,10 +16,12 @@ func serializeFields(fields map[string]interface{}) map[string]interface{} {
 	for key, value := range fields {
 		// Convert the value if it needs to be changed
 		var valueP interface{}
-		switch reflect.TypeOf(value).Kind() {
-		case reflect.TypeOf(time.Time{}).Kind():
+		switch t := reflect.TypeOf(value); {
+		case t == nil:
 			valueP = value
-		case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct:
+		case t.Kind() == reflect.TypeOf(time.Time{}).Kind():
+			valueP = value
+		case t.Kind() == reflect.Slice, t.Kind() == reflect.Array, t.Kind() == reflect.Map, t.Kind() == reflect.Struct:
 			// Convert to json
 			json, _ := json.Marshal(value)
 			valueP = fmt.Sprintf("\"%s\"", json)
