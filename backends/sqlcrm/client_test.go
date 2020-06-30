@@ -8,6 +8,10 @@ import (
 	crm "github.com/vertoforce/generic-crm"
 )
 
+// To perform this test a database must be set up with a table with the following columns
+// name varchar
+// item varchar
+// test varchar
 func TestClient(t *testing.T) {
 	c, err := NewCRM("root:pass@tcp(127.0.0.1:3306)/db", "test")
 	if err != nil {
@@ -19,6 +23,7 @@ func TestClient(t *testing.T) {
 		Fields: map[string]interface{}{
 			"name": "Name 1",
 			"item": "item",
+			"test": []string{"1", "2"},
 		},
 	})
 	if err != nil {

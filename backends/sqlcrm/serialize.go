@@ -8,9 +8,7 @@ import (
 )
 
 // serializeFields Converts an item's fields to how they will be stored in the crm.
-// It basically serialize hard to store fields to something sql can store
-//
-// Ex: converting []string to csv, etc
+// It basically serializes hard to store fields to something sql can store
 func serializeFields(fields map[string]interface{}) map[string]interface{} {
 	ret := map[string]interface{}{}
 	for key, value := range fields {
@@ -21,10 +19,14 @@ func serializeFields(fields map[string]interface{}) map[string]interface{} {
 			continue
 		case t.Kind() == reflect.TypeOf(time.Time{}).Kind():
 			valueP = value
+		case (t.Kind() == reflect.Slice || t.Kind() == reflect.Array) && t.Elem().Kind() == reflect.Uint8:
+			// This is a []byte, a special case to just use this raw value
+			// Just use this raw value
+			valueP = value
 		case t.Kind() == reflect.Slice, t.Kind() == reflect.Array, t.Kind() == reflect.Map, t.Kind() == reflect.Struct:
 			// Convert to json
-			json, _ := json.Marshal(value)
-			valueP = fmt.Sprintf("\"%s\"", json)
+			json, _ := json.Marshal(map[string]interface{}{"value": value})
+			valueP = fmt.Sprintf("%s", json)
 		default:
 			valueP = value
 		}
@@ -40,16 +42,25 @@ func deserializeFields(fields map[string]interface{}) map[string]interface{} {
 	ret := map[string]interface{}{}
 	for key, value := range fields {
 		switch value.(type) {
-		case []byte:
+		case []byte, string:
 			// Try to unmarshal
 			var newValue interface{}
-			err := json.Unmarshal(value.([]byte), &newValue)
+			j := fmt.Sprintf("%s", value)
+			err := json.Unmarshal([]byte(j), &newValue)
 			if err != nil {
 				// Just convert this to a string
 				ret[key] = fmt.Sprintf("%s", value)
 				continue
 			}
-			// We did it, use this new value
+			// We did it, extract the value from this
+			if p, ok := newValue.(map[string]interface{}); ok {
+				if v, ok := p["value"]; ok {
+					ret[key] = v
+					continue
+				}
+			}
+			// This only happens when this just happened to be serializable
+			// Use the raw value
 			ret[key] = value
 		default:
 			// Leave as is
