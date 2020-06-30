@@ -18,7 +18,7 @@ func serializeFields(fields map[string]interface{}) map[string]interface{} {
 		var valueP interface{}
 		switch t := reflect.TypeOf(value); {
 		case t == nil:
-			valueP = value
+			continue
 		case t.Kind() == reflect.TypeOf(time.Time{}).Kind():
 			valueP = value
 		case t.Kind() == reflect.Slice, t.Kind() == reflect.Array, t.Kind() == reflect.Map, t.Kind() == reflect.Struct:
