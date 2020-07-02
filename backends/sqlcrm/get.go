@@ -18,6 +18,7 @@ func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	ret := []crm.Item{}
 	for rows.Next() {
@@ -34,6 +35,7 @@ func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
 
 // GetItem gets a single item from this sql crm
 func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{}) (crm.Item, error) {
+	// TODO: Change to prepared query to avoid sql injection
 	whereQuery, whereValues := fieldsToSQLWhere(serializeFields(searchValues))
 	rows, err := c.db.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s WHERE %s",
 		strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""),
@@ -42,6 +44,7 @@ func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	ret := []crm.Item{}
 	for rows.Next() {

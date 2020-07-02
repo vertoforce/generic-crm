@@ -22,7 +22,7 @@ func (c *Client) UpdateItem(ctx context.Context, i crm.Item, updateFields map[st
 	}
 	setQuery := strings.Join(sets, ",")
 
-	_, err := c.db.QueryxContext(ctx, fmt.Sprintf("UPDATE %s SET %s WHERE %s",
+	r, err := c.db.QueryxContext(ctx, fmt.Sprintf("UPDATE %s SET %s WHERE %s",
 		strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""),
 		setQuery,
 		whereQuery,
@@ -30,6 +30,7 @@ func (c *Client) UpdateItem(ctx context.Context, i crm.Item, updateFields map[st
 	if err != nil {
 		return err
 	}
+	defer r.Close()
 
 	return nil
 }
