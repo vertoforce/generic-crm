@@ -1,5 +1,12 @@
 package googlesheet
 
+import (
+	"context"
+	"fmt"
+
+	crm "github.com/vertoforce/generic-crm"
+)
+
 // LoadHeaders loads headers from the first row of the sheet into the Client object
 func (c *Client) LoadHeaders() {
 	c.Headers = []string{}
@@ -29,4 +36,10 @@ func (c *Client) getHeaderIndex(header string) int {
 		}
 	}
 	return -1
+}
+
+// UpdateColumns would add new columns based on the example item.
+// Currently not supported
+func (c *Client) UpdateColumns(ctx context.Context, exampleItem crm.Item) error {
+	return fmt.Errorf("not supported")
 }

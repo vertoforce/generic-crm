@@ -21,6 +21,9 @@ type CRM interface {
 	RemoveItems(ctx context.Context, i ...Item) error
 	CreateItem(ctx context.Context, i Item) error
 	UpdateItem(ctx context.Context, i Item, updateFields map[string]interface{}) error
+	// Create or update current columns using the example item to determine types
+	// If a column exists, it will update it's type
+	UpdateColumns(ctx context.Context, exampleItem Item) error
 }
 
 // Item is a generic item from the crm.

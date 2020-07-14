@@ -19,6 +19,17 @@ func TestClient(t *testing.T) {
 		return
 	}
 
+	// Try creating a new column
+	err = c.UpdateColumns(context.Background(), &crm.DefaultItem{Fields: map[string]interface{}{
+		"TestColumn":  "TEST",
+		"TestColumn2": "TEST",
+		"name":        "name",
+	}})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	err = c.CreateItem(context.Background(), &crm.DefaultItem{
 		Fields: map[string]interface{}{
 			"name": "Name 1",
