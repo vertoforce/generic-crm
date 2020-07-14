@@ -3,6 +3,7 @@ package sqlcrm
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	crm "github.com/vertoforce/generic-crm"
 )
@@ -18,7 +19,7 @@ func (c *Client) UpdateColumns(ctx context.Context, exampleItem crm.Item) error 
 exampleItemLoop:
 	for key, value := range exampleItem.GetFields() {
 		for columnName := range columns {
-			if key == columnName {
+			if strings.ToLower(key) == strings.ToLower(columnName) {
 				// We already have this
 				// TODO: check type
 				continue exampleItemLoop
