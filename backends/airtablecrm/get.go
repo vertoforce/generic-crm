@@ -11,33 +11,54 @@ import (
 
 // GetItem from CRM
 func (c *Client) GetItem(ctx context.Context, searchFields map[string]interface{}) (crm.Item, error) {
-	items := []*Item{}
-	searchFilters := []string{}
-	for key, value := range searchFields {
-		searchFilters = append(searchFilters, fmt.Sprintf("%s='%v'", key, value))
-	}
-	filterFormula := strings.Join(searchFilters, " AND ")
-	c.client.ListRecords(c.tableName, &items, airtable.ListParameters{FilterByFormula: filterFormula})
-
-	if len(items) == 0 {
-		return nil, crm.ErrItemNotFound
-	}
-
-	return items[0], nil
-}
-
-// GetItems gets all items from this airtable crm
-func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
-	items := []*Item{}
-	err := c.client.ListRecords(c.tableName, &items)
+	// Get items with this filter
+	subContext, cancel := context.WithCancel(ctx)
+	defer cancel()
+	items, err := c.GetItems(subContext, searchFields)
 	if err != nil {
 		return nil, err
 	}
 
-	ret := []crm.Item{}
-	for _, item := range items {
-		ret = append(ret, item)
+	// Return first found item
+	for item := range items {
+		return item, nil
 	}
+
+	return nil, crm.ErrItemNotFound
+}
+
+// GetItems gets all items from this airtable crm
+func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interface{}) (chan crm.Item, error) {
+	ret := make(chan crm.Item)
+
+	items := []*Item{}
+	var err error
+	if len(searchFields) > 0 && searchFields[0] != nil {
+		// Get rows with a certain filter
+		searchFilters := []string{}
+		for key, value := range searchFields[0] {
+			searchFilters = append(searchFilters, fmt.Sprintf("%s='%v'", key, value))
+		}
+		filterFormula := strings.Join(searchFilters, " AND ")
+		err = c.client.ListRecords(c.tableName, &items, airtable.ListParameters{FilterByFormula: filterFormula})
+	} else {
+		err = c.client.ListRecords(c.tableName, &items)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		defer close(ret)
+		// Send each item on
+		for _, item := range items {
+			select {
+			case <-ctx.Done():
+				return
+			case ret <- item:
+			}
+		}
+	}()
 
 	return ret, nil
 }

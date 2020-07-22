@@ -79,7 +79,7 @@ func TestCRM(t *testing.T) {
 
 		// Delete our created item
 		var toDelete crm.Item
-		for _, item := range items {
+		for item := range items {
 			if item.GetFields()["Name"] == "test" {
 				toDelete = item
 				break

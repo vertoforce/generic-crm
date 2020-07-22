@@ -62,11 +62,16 @@ func TestClient(t *testing.T) {
 		return
 	}
 
-	items, err := c.GetItems(context.Background())
+	itemsChan, err := c.GetItems(context.Background())
 	if err != nil {
 		t.Error(err)
 		return
 	}
+	items := []crm.Item{}
+	for item := range itemsChan {
+		items = append(items, item)
+	}
+
 	if len(items) == 0 {
 		t.Errorf("Not enough items")
 	}

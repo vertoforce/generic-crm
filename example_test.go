@@ -29,10 +29,12 @@ func Example() {
 	})
 
 	items, _ := c.GetItems(context.Background())
-	for _, item := range items {
+	toRemove := []crm.Item{}
+	for item := range items {
+		toRemove = append(toRemove, item)
 		fmt.Println(item.GetFields()["Name"])
 	}
-	c.RemoveItems(context.Background(), items[0])
+	c.RemoveItems(context.Background(), toRemove...)
 
 	// Output: test
 }

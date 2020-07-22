@@ -44,7 +44,7 @@ func TestItems(t *testing.T) {
 	count := 0
 	var lastItem crm.Item
 	toRemove := []crm.Item{}
-	for _, item := range items {
+	for item := range items {
 		if item.GetFields()["Name"] != fmt.Sprintf("Name %d", count) {
 			t.Errorf("Incorrect name for item %d", count)
 			return
@@ -101,7 +101,7 @@ func TestItems(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	for _, item := range items {
+	for item := range items {
 		toRemove = append(toRemove, item)
 	}
 

@@ -112,7 +112,7 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 			}
 
 		itemLoop:
-			for _, item := range items {
+			for item := range items {
 				// Check if this item is safe
 			safeItemSearchLoop:
 				for safeItemSearch := range safeItems {

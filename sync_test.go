@@ -70,7 +70,9 @@ func TestSync(t *testing.T) {
 			return
 		}
 		foundNames := map[string]bool{}
-		for _, item := range items {
+		toDelete := []crm.Item{}
+		for item := range items {
+			toDelete = append(toDelete, item)
 			foundNames[item.GetFields()["Name"].(string)] = true
 		}
 		if len(foundNames) > testSyncItemCount {
@@ -83,7 +85,7 @@ func TestSync(t *testing.T) {
 		}
 
 		// Delete all items
-		testCRM.RemoveItems(ctx, items...)
+		testCRM.RemoveItems(ctx, toDelete...)
 	}
 
 }

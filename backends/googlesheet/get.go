@@ -2,7 +2,6 @@ package googlesheet
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	crm "github.com/vertoforce/generic-crm"
@@ -13,51 +12,65 @@ import (
 func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{}) (crm.Item, error) {
 	subContext, cancel := context.WithCancel(ctx)
 	defer cancel()
-	items, err := c.GetItems(subContext)
+	items, err := c.GetItems(subContext, searchValues)
 	if err != nil {
 		return nil, err
 	}
-itemLoop:
-	for _, item := range items {
-		itemMap := item.GetFields()
-		// Check if this item matches
-		for searchKey, searchValue := range searchValues {
-			if foundValue, ok := itemMap[searchKey]; !ok || !reflect.DeepEqual(foundValue, searchValue) {
-				// This didn't match
-				continue itemLoop
-			}
-		}
-		// Found it!
+	for item := range items {
 		return item, nil
 	}
 
-	return nil, fmt.Errorf("item not found")
+	return nil, crm.ErrItemNotFound
 }
 
 // GetItems returns all the items in the sheet
-func (c *Client) GetItems(ctx context.Context) ([]crm.Item, error) {
+func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interface{}) (chan crm.Item, error) {
 	// TODO: Reload sheet if we haven't in some time (to make sure we got the latest updates)
-	items := []crm.Item{}
-	for r := 1; r < c.NumItems()+1; r++ {
-		row := c.Sheet.Rows[r]
 
-		// Build item to send
-		item := &Item{
-			RowNumber: r,
-			Fields:    []string{},
-			client:    c,
-		}
-		// Fill in fields
-		for i, col := range row {
-			if i >= len(c.Headers) {
-				// Fields beyond the headers, ignore these
-				break
+	items := make(chan crm.Item)
+
+	go func() {
+		defer close(items)
+
+	itemLoop:
+		for r := 1; r < c.NumItems()+1; r++ {
+			select {
+			case <-ctx.Done():
+				return
+			default:
 			}
-			item.Fields = append(item.Fields, col.Value)
-		}
 
-		items = append(items, item)
-	}
+			row := c.Sheet.Rows[r]
+
+			// Build item to send
+			item := &Item{RowNumber: r, Fields: []string{}, client: c}
+			// Fill in fields
+			for i, col := range row {
+				if i >= len(c.Headers) {
+					// Fields beyond the headers, ignore these
+					break
+				}
+				item.Fields = append(item.Fields, col.Value)
+			}
+
+			if len(searchFields) > 0 {
+				itemMap := item.GetFields()
+				// Check if this item matches
+				for searchKey, searchValue := range searchFields[0] {
+					if foundValue, ok := itemMap[searchKey]; !ok || !reflect.DeepEqual(foundValue, searchValue) {
+						// This didn't match
+						continue itemLoop
+					}
+				}
+			}
+
+			select {
+			case <-ctx.Done():
+				return
+			case items <- item:
+			}
+		}
+	}()
 
 	return items, nil
 }
