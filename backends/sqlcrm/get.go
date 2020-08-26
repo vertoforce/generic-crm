@@ -17,7 +17,7 @@ import (
 func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interface{}) (chan crm.Item, error) {
 	var rows *sqlx.Rows
 	var err error
-	if len(searchFields) > 0 && searchFields[0] != nil {
+	if len(searchFields) > 0 && searchFields[0] != nil && len(searchFields[0]) > 0 {
 		// This is a where search, generate where query
 		whereQuery, whereValues := fieldsToSQLWhere(serializeFields(searchFields[0]))
 		rows, err = c.db.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s WHERE %s",
