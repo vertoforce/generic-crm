@@ -18,8 +18,8 @@ import (
 // This version of the Google Sheets API has a limit of 500 requests per 100 seconds per project,
 // and 100 requests per 100 seconds per user. Limits for reads and writes are tracked separately. There is no daily usage limit
 const (
-	GoogleSheetUsageLimit     = 100
-	GoogleSheetUsageLimitTime = time.Second * 105 // Set to 105 to be safe
+	GoogleSheetUsageLimit     = 90 // Set to 90 to be safe
+	GoogleSheetUsageLimitTime = time.Second * 100
 )
 
 // Client is a session with a google sheet
