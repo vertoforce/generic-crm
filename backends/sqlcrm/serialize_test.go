@@ -3,6 +3,7 @@ package sqlcrm
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestSerialize(t *testing.T) {
@@ -15,8 +16,9 @@ func TestSerialize(t *testing.T) {
 			One string
 			Two []byte
 		}{One: "One", Two: []byte{0, 1, 2}},
-		"Number": 5,
+		"Number": int64(5),
 		"float":  float64(5.3),
+		"time":   time.Now(),
 	}
 
 	// Try to serialize and deserialize and make sure the result is the same as the original
