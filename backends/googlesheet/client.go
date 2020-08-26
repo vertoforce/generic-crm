@@ -62,7 +62,10 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 		quota:             quotatrack.New(GoogleSheetUsageLimitTime),
 		config:            config,
 	}
-	client.loadSheet()
+	err = client.loadSheet()
+	if err != nil {
+		return nil, err
+	}
 
 	return client, nil
 }
