@@ -60,7 +60,7 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 	client := &Client{
 		Service:           spreadsheet.NewServiceWithClient(googleClient),
 		WaitToSynchronize: config.WaitToSynchronize,
-		quota:             ratelimit.NewBucket(GoogleSheetUsageLimitTime, GoogleSheetUsageLimit),
+		quota:             ratelimit.NewBucketWithQuantum(GoogleSheetUsageLimitTime, GoogleSheetUsageLimit, GoogleSheetUsageLimit),
 		config:            config,
 	}
 	err = client.loadSheet()
