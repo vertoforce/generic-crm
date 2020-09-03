@@ -103,7 +103,7 @@ func (c *Client) Synchronize() error {
 	c.consumeQuota()
 	err := c.Sheet.Synchronize()
 	// Keep trying if we got a resource exhausted message
-	for strings.Contains(err.Error(), "RESOURCE_EXHAUSTED") {
+	for err != nil && strings.Contains(err.Error(), "RESOURCE_EXHAUSTED") {
 		time.Sleep(time.Second * 5)
 		c.consumeQuota()
 		err = c.Sheet.Synchronize()
