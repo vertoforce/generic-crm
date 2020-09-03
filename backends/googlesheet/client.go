@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/vertoforce/generic-crm/backends/googlesheet/quotatrack"
+	"github.com/juju/ratelimit"
 
 	"golang.org/x/oauth2/google"
 	"gopkg.in/Iwark/spreadsheet.v2"
@@ -29,7 +29,7 @@ type Client struct {
 	Sheet             *spreadsheet.Sheet       // Sheet we are working with
 	Headers           []string                 // Header row of column names.  If this is blank, no headers for this sheet
 	WaitToSynchronize bool                     // Don't synchronize the sheet after every request, wait for Synchronize to be called
-	quota             *quotatrack.Quota        // Quota to track our usage to see if we need to slow down
+	quota             *ratelimit.Bucket        // Quota to track our usage to see if we need to slow down
 	config            *Config
 }
 
@@ -59,7 +59,7 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 	client := &Client{
 		Service:           spreadsheet.NewServiceWithClient(googleClient),
 		WaitToSynchronize: config.WaitToSynchronize,
-		quota:             quotatrack.New(GoogleSheetUsageLimitTime),
+		quota:             ratelimit.NewBucket(GoogleSheetUsageLimitTime, GoogleSheetUsageLimit),
 		config:            config,
 	}
 	err = client.loadSheet()
@@ -103,9 +103,6 @@ func (c *Client) Synchronize() error {
 
 // consumeQuota by waiting for one to be available, and then consuming it
 func (c *Client) consumeQuota() {
-	if quotaUsage := c.quota.Usage(); quotaUsage >= GoogleSheetUsageLimit {
-		sleepTime := c.quota.TimeUntilQuotaAvailable(GoogleSheetUsageLimit, 1)
-		time.Sleep(sleepTime)
-	}
-	c.quota.Consume(1)
+	c.quota.Wait(1)
+	time.Sleep(time.Millisecond * 100) // Additional sleep just to be safe
 }
