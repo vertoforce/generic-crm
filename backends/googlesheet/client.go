@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/juju/ratelimit"
@@ -72,6 +73,7 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 
 func (c *Client) loadSheet() error {
 	// Load spreadsheet
+	c.consumeQuota()
 	spreadsheet, err := c.Service.FetchSpreadsheet(GetSpreadsheetID(c.config.SpreadsheetURL))
 	if err != nil {
 		return fmt.Errorf("failed to load spreadsheet: %s", err)
@@ -79,6 +81,7 @@ func (c *Client) loadSheet() error {
 	c.Spreadsheet = &spreadsheet
 
 	// Get sheet
+	c.consumeQuota()
 	sheet, err := spreadsheet.SheetByTitle(c.config.SheetName)
 	if err != nil {
 		return fmt.Errorf("failed to load sheet: %s", err)
@@ -98,7 +101,14 @@ func updateCell(sheet *spreadsheet.Sheet, row int, col int, value string) {
 // Synchronize - If the client is set to waitToSynchronize, this function synchronizes the sheet after a series of operations
 func (c *Client) Synchronize() error {
 	c.consumeQuota()
-	return c.Sheet.Synchronize()
+	err := c.Sheet.Synchronize()
+	// Keep trying if we got a resource exhausted message
+	for strings.Contains(err.Error(), "RESOURCE_EXHAUSTED") {
+		time.Sleep(time.Second * 5)
+		c.consumeQuota()
+		err = c.Sheet.Synchronize()
+	}
+	return err
 }
 
 // consumeQuota by waiting for one to be available, and then consuming it
