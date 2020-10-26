@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
+	"time"
 
 	crm "github.com/vertoforce/generic-crm"
 )
@@ -35,6 +37,12 @@ func (c *Client) RemoveItemsInternal(items Items) error {
 		// Set the row to be blank, and delete that row
 		c.consumeQuota()
 		err := c.Service.DeleteRows(c.Sheet, item.RowNumber+offset, item.RowNumber+offset+1)
+		// Keep retrying if we get resource exhausted
+		for err != nil && strings.Contains(err.Error(), "RESOURCE_EXHAUSTED") {
+			time.Sleep(time.Second * 5)
+			c.consumeQuota()
+			err = c.Service.DeleteRows(c.Sheet, item.RowNumber+offset, item.RowNumber+offset+1)
+		}
 		if err != nil {
 			return err
 		}
