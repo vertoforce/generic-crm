@@ -9,6 +9,9 @@ import (
 
 // UpdateItem Updates an item's fields
 func (c *Client) UpdateItem(ctx context.Context, i crm.Item, fields map[string]interface{}) error {
+	c.Lock()
+	defer c.Unlock()
+
 	// convert to google sheet item
 	googleSheetItem, ok := i.(*Item)
 	if !ok {

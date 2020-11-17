@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/juju/ratelimit"
@@ -32,6 +33,8 @@ type Client struct {
 	WaitToSynchronize bool                     // Don't synchronize the sheet after every request, wait for Synchronize to be called
 	quota             *ratelimit.Bucket        // Quota to track our usage to see if we need to slow down
 	config            *Config
+
+	sync.Mutex
 }
 
 // Config to create a new client
@@ -62,6 +65,7 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 		WaitToSynchronize: config.WaitToSynchronize,
 		quota:             ratelimit.NewBucketWithQuantum(GoogleSheetUsageLimitTime, GoogleSheetUsageLimit, GoogleSheetUsageLimit),
 		config:            config,
+		Mutex:             sync.Mutex{},
 	}
 	err = client.loadSheet()
 	if err != nil {

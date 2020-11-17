@@ -14,6 +14,8 @@ func (c *Client) CreateItem(ctx context.Context, i crm.Item) error {
 
 // CreateItemFromValues Creates an item by creating a new row
 func (c *Client) CreateItemFromValues(values []string) error {
+	c.Lock()
+	defer c.Unlock()
 	rowNumberToPlaceAt := c.NumItems() + 1
 
 	// Insert the new values

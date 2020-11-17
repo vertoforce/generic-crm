@@ -30,6 +30,9 @@ func (c *Client) RemoveItems(ctx context.Context, items ...crm.Item) error {
 
 // RemoveItemsInternal from the CRM, NOTE - YOU MUST fetch the items again after removing items because the row numbers will change
 func (c *Client) RemoveItemsInternal(items Items) error {
+	c.Lock()
+	defer c.Unlock()
+
 	// First sort to be in order of row numbers
 	sort.Sort(items)
 	offset := 0
