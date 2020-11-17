@@ -19,6 +19,8 @@ func (c *Client) LoadHeaders() {
 
 // SetHeaders Sets the first row of the sheet.  Note headers MUST be enabled, otherwise nothing will happen
 func (c *Client) SetHeaders(headers []string) error {
+	c.Lock()
+	defer c.Unlock()
 	for i, header := range headers {
 		updateCell(c.Sheet, 0, i, header)
 	}
