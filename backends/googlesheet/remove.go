@@ -25,11 +25,11 @@ func (c *Client) RemoveItems(ctx context.Context, items ...crm.Item) error {
 		}
 		internalItems = append(internalItems, googleSheetItem)
 	}
-	return c.RemoveItemsInternal(internalItems)
+	return c.RemoveItemsInternal(ctx, internalItems)
 }
 
 // RemoveItemsInternal from the CRM, NOTE - YOU MUST fetch the items again after removing items because the row numbers will change
-func (c *Client) RemoveItemsInternal(items Items) error {
+func (c *Client) RemoveItemsInternal(ctx context.Context, items Items) error {
 	c.Lock()
 	defer c.Unlock()
 
@@ -37,6 +37,11 @@ func (c *Client) RemoveItemsInternal(items Items) error {
 	sort.Sort(items)
 	offset := 0
 	for _, item := range items {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 		// Set the row to be blank, and delete that row
 		c.consumeQuota()
 		err := c.Service.DeleteRows(c.Sheet, item.RowNumber+offset, item.RowNumber+offset+1)
