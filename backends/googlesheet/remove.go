@@ -64,3 +64,21 @@ func (c *Client) RemoveItemsInternal(ctx context.Context, items Items) error {
 
 	return nil
 }
+
+// RemoveRows removes rows from the spreadsheet.  Note that start row 0 does not mean the header row, it's the first row of data.
+// So to delete all data in a sheet you could run c.RemoveRows(ctx, 0, c.NumRows())
+func (c *Client) RemoveRows(ctx context.Context, startRow int, endRow int) error {
+	c.Lock()
+	defer c.Unlock()
+	c.consumeQuota()
+	headersOffset := 0
+	if len(c.Headers) > 0 {
+		headersOffset = 1
+	}
+	err := c.Service.DeleteRows(c.Sheet, startRow+headersOffset, endRow+headersOffset) // Add 1 if there are headers
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
