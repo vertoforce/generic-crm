@@ -85,8 +85,5 @@ func (c *Client) RemoveRows(ctx context.Context, startRow int, endRow int) error
 
 // ClearSheet removes all rows
 func (c *Client) ClearSheet(ctx context.Context) error {
-	c.Lock()
-	defer c.Unlock()
-
 	return c.RemoveRows(ctx, 0, c.NumItems())
 }
