@@ -75,8 +75,8 @@ func New(ctx context.Context, config *Config) (*Client, error) {
 	return client, nil
 }
 
+// loadSheet loads the spreadsheet data
 func (c *Client) loadSheet() error {
-	// Load spreadsheet
 	c.consumeQuota()
 	spreadsheet, err := c.Service.FetchSpreadsheet(GetSpreadsheetID(c.config.SpreadsheetURL))
 	if err != nil {

@@ -83,7 +83,11 @@ func (c *Client) RemoveRows(ctx context.Context, startRow int, endRow int) error
 	return nil
 }
 
-// ClearSheet removes all rows
+// ClearSheet removes all rows and load the sheet again
 func (c *Client) ClearSheet(ctx context.Context) error {
-	return c.RemoveRows(ctx, 0, c.NumItems())
+	err := c.RemoveRows(ctx, 0, c.NumItems())
+	if err != nil {
+		return err
+	}
+	return c.loadSheet()
 }
