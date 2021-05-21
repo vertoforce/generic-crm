@@ -32,8 +32,9 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 	go func() {
 		defer close(items)
 
+		numItems := c.NumItems(ctx)
 	itemLoop:
-		for r := 1; r < c.NumItems()+1; r++ {
+		for r := 1; r < numItems+1; r++ {
 			select {
 			case <-ctx.Done():
 				return
