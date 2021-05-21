@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/opentracing/opentracing-go"
 	crm "github.com/vertoforce/generic-crm"
 )
 
 // UpdateItem Updates an item's fields
 func (c *Client) UpdateItem(ctx context.Context, i crm.Item, fields map[string]interface{}) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "UpdateItem")
+	defer span.Finish()
 	c.Lock()
 	defer c.Unlock()
 

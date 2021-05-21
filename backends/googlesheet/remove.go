@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	crm "github.com/vertoforce/generic-crm"
 )
 
@@ -30,6 +31,9 @@ func (c *Client) RemoveItems(ctx context.Context, items ...crm.Item) error {
 
 // RemoveItemsInternal from the CRM, NOTE - YOU MUST fetch the items again after removing items because the row numbers will change
 func (c *Client) RemoveItemsInternal(ctx context.Context, items Items) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "RemoveItemsGoogleSheet")
+	span.LogKV("itemsLength", len(items))
+	defer span.Finish()
 	c.Lock()
 	defer c.Unlock()
 
@@ -85,7 +89,11 @@ func (c *Client) RemoveRows(ctx context.Context, startRow int, endRow int) error
 
 // ClearSheet removes all rows and load the sheet again
 func (c *Client) ClearSheet(ctx context.Context) error {
-	err := c.RemoveRows(ctx, 0, c.NumItems())
+	var span opentracing.Span
+	span, ctx = opentracing.StartSpanFromContext(ctx, "ClearSheet")
+	defer span.Finish()
+
+	err := c.RemoveRows(ctx, 0, c.NumItems(ctx))
 	if err != nil {
 		return err
 	}

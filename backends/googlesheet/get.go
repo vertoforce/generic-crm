@@ -4,12 +4,15 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/opentracing/opentracing-go"
 	crm "github.com/vertoforce/generic-crm"
 )
 
 // GetItem searches for an item based on field values, will return first item that matches
 // It loops through all items searching for it (it's in memory anyway)
 func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{}) (crm.Item, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "GetItemGoogleSheet")
+	defer span.Finish()
 	subContext, cancel := context.WithCancel(ctx)
 	defer cancel()
 	items, err := c.GetItems(subContext, searchValues)
@@ -25,12 +28,15 @@ func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{
 
 // GetItems returns all the items in the sheet
 func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interface{}) (chan crm.Item, error) {
+	var span opentracing.Span
+	span, ctx = opentracing.StartSpanFromContext(ctx, "GetItemsGoogleSheet")
 	// TODO: Reload sheet if we haven't in some time (to make sure we got the latest updates)
 
 	items := make(chan crm.Item)
 
 	go func() {
 		defer close(items)
+		defer span.Finish()
 
 		numItems := c.NumItems(ctx)
 	itemLoop:
@@ -78,7 +84,9 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 
 // NumItems Gets the number of items in the sheet.  If headers are enabled, it does NOT count the first row
 // It finds the first empty row to mark the end of the items
-func (c *Client) NumItems() int {
+func (c *Client) NumItems(ctx context.Context) int {
+	span, _ := opentracing.StartSpanFromContext(ctx, "GetNumItems")
+	defer span.Finish()
 	if len(c.Sheet.Rows) <= 1 {
 		return 0
 	}
@@ -102,5 +110,7 @@ rowLoop:
 	}
 
 	// Reached end of sheet, so it's just the length of the sheet (minus headers)
-	return len(c.Sheet.Rows) - 1
+	result := len(c.Sheet.Rows) - 1
+	span.LogKV("result", result)
+	return result
 }

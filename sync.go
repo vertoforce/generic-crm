@@ -3,6 +3,9 @@ package crm
 import (
 	"context"
 	"fmt"
+	"reflect"
+
+	"github.com/opentracing/opentracing-go"
 )
 
 // SearchFunction is a function that given an item, return the search fields to find that unique item.
@@ -64,6 +67,10 @@ func (s *SyncMachine) SetDeleteUntouchedItems(deleteUntouchedItems bool) *SyncMa
 
 // Sync Performs the actual sync task, see the description of SyncMachine
 func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
+	// var span opentracing.Span
+	// span, ctx = opentracing.StartSpanFromContext(ctx, "Sync")
+	// defer span.Finish()
+
 	// safeItems stores the items that were either created or updated, and therefore should not be removed
 	// It marks the item safe by storing the search function used to find it
 	safeItems := map[*map[string]interface{}]bool{}
@@ -73,12 +80,17 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 
 		// Update each crm
 		for _, crm := range s.crms {
+			processItemSpan, processItemCtx := opentracing.StartSpanFromContext(ctx, "ProcessItem")
+			processItemSpan.LogKV("CRM", reflect.TypeOf(crm).String())
 			// Check if ths CRM contains this item
+			SearchSpan, _ := opentracing.StartSpanFromContext(processItemCtx, "SearchFunction")
 			newItemSearch := s.searchFunction(newItem)
-			if oldItem, err := crm.GetItem(ctx, newItemSearch); err == nil && oldItem != nil {
+			SearchSpan.Finish()
+			if oldItem, err := crm.GetItem(processItemCtx, newItemSearch); err == nil && oldItem != nil {
 				// We found the item, update it
-				err = crm.UpdateItem(ctx, oldItem, newItem.GetFields())
+				err = crm.UpdateItem(processItemCtx, oldItem, newItem.GetFields())
 				if err != nil {
+					processItemSpan.Finish()
 					return err
 				}
 				if !markedSafe {
@@ -89,24 +101,27 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 			}
 
 			// Create the item
-			err := crm.CreateItem(ctx, newItem)
+			err := crm.CreateItem(processItemCtx, newItem)
 			if err != nil {
+				processItemSpan.Finish()
 				return err
 			}
 			if !markedSafe {
 				safeItems[&newItemSearch] = true
 				markedSafe = true
 			}
+			processItemSpan.Finish()
 		}
 	}
 
 	// Now we need to delete any items that were not updates or created
 	if s.deleteUntouchedItems {
+		deleteSpan, deleteCtx := opentracing.StartSpanFromContext(ctx, "DeleteUntouchedItems")
 		for _, crm := range s.crms {
 			toRemove := []Item{}
 
 			// Go through each item to check if it's safe
-			items, err := crm.GetItems(ctx)
+			items, err := crm.GetItems(deleteCtx)
 			if err != nil {
 				return fmt.Errorf("failed to get items to delete old items: %s", err)
 			}
@@ -131,11 +146,12 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 			}
 
 			// Remove all items marked for deletion
-			err = crm.RemoveItems(ctx, toRemove...)
+			err = crm.RemoveItems(deleteCtx, toRemove...)
 			if err != nil {
 				return fmt.Errorf("failed to delete item: %s", err)
 			}
 		}
+		deleteSpan.Finish()
 	}
 
 	return nil

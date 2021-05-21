@@ -11,7 +11,7 @@ require (
 	github.com/lib/pq v1.7.0
 	github.com/makeitraina/airtable-go v3.1.0+incompatible // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/opentracing/opentracing-go v1.2.0
 	github.com/vertoforce/airtable-go v0.0.0-20200608173945-23baffada355
 	github.com/vertoforce/regexgrouphelp v0.1.1
 	golang.org/x/net v0.0.0-20190108225652-1e06a53dbb7e

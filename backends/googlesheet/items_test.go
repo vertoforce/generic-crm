@@ -28,7 +28,7 @@ func TestItems(t *testing.T) {
 
 	// Insert three items
 	for i := 0; i < 3; i++ {
-		err = c.CreateItemFromValues([]string{fmt.Sprintf("Name %d", i), fmt.Sprintf("Item %d", i)})
+		err = c.CreateItemFromValues(ctx, []string{fmt.Sprintf("Name %d", i), fmt.Sprintf("Item %d", i)})
 		if err != nil {
 			t.Error(err)
 			return
@@ -79,7 +79,7 @@ func TestItems(t *testing.T) {
 	// -- Test removing the middle two items --
 
 	// Add new item
-	err = c.CreateItemFromValues([]string{"Name last", "Item last"})
+	err = c.CreateItemFromValues(ctx, []string{"Name last", "Item last"})
 	if err != nil {
 		t.Error(err)
 		return
