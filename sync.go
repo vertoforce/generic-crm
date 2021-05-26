@@ -81,7 +81,7 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 		// Update each crm
 		for _, crm := range s.crms {
 			processItemSpan, processItemCtx := opentracing.StartSpanFromContext(ctx, "ProcessItem")
-			processItemSpan.LogKV("CRM", reflect.TypeOf(crm).String())
+			processItemSpan.SetTag("CRM", reflect.TypeOf(crm).String())
 			// Check if ths CRM contains this item
 			SearchSpan, _ := opentracing.StartSpanFromContext(processItemCtx, "SearchFunction")
 			newItemSearch := s.searchFunction(newItem)

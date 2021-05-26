@@ -6,8 +6,11 @@ import (
 	"os"
 	"testing"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
 	crm "github.com/vertoforce/generic-crm"
+	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmot"
 )
 
 func getTestingClient() (*Client, error) {
@@ -21,6 +24,8 @@ func getTestingClient() (*Client, error) {
 func TestItems(t *testing.T) {
 	ctx := context.Background()
 
+	opentracing.SetGlobalTracer(apmot.New())
+	defer apm.DefaultTracer.Flush(nil)
 	c, err := getTestingClient()
 	if err != nil {
 		t.Error(err)

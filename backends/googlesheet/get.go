@@ -34,6 +34,21 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 
 	items := make(chan crm.Item)
 
+	// Build map of column number to desired value from the searchFields
+	// This is so we can be more efficient in searching each row
+	searchValuesRowBased := map[int]interface{}{}
+	for _, sF := range searchFields {
+		for key, value := range sF {
+			// Find column number for this field
+			for colNum, header := range c.Headers {
+				if header == key {
+					searchValuesRowBased[colNum] = value
+					break
+				}
+			}
+		}
+	}
+
 	go func() {
 		defer close(items)
 		defer span.Finish()
@@ -49,6 +64,18 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 
 			row := c.Sheet.Rows[r]
 
+			// Check if this item matches
+			for colNum, value := range searchValuesRowBased {
+				if colNum >= len(row) {
+					// Bad row, doesn't match
+					continue itemLoop
+				}
+				if !reflect.DeepEqual(row[colNum].Value, value) {
+					// This didn't match
+					continue itemLoop
+				}
+			}
+
 			// Build item to send
 			item := &Item{RowNumber: r, Fields: []string{}, client: c}
 			// Fill in fields
@@ -58,17 +85,6 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 					break
 				}
 				item.Fields = append(item.Fields, col.Value)
-			}
-
-			if len(searchFields) > 0 {
-				itemMap := item.GetFields()
-				// Check if this item matches
-				for searchKey, searchValue := range searchFields[0] {
-					if foundValue, ok := itemMap[searchKey]; !ok || !reflect.DeepEqual(foundValue, searchValue) {
-						// This didn't match
-						continue itemLoop
-					}
-				}
 			}
 
 			select {
@@ -86,6 +102,7 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 // It finds the first empty row to mark the end of the items
 func (c *Client) NumItems(ctx context.Context) int {
 	span, _ := opentracing.StartSpanFromContext(ctx, "GetNumItems")
+	span.SetTag("result", 0)
 	defer span.Finish()
 	if len(c.Sheet.Rows) <= 1 {
 		return 0
@@ -111,6 +128,6 @@ rowLoop:
 
 	// Reached end of sheet, so it's just the length of the sheet (minus headers)
 	result := len(c.Sheet.Rows) - 1
-	span.LogKV("result", result)
+	span.SetTag("result", result)
 	return result
 }
