@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	crm "github.com/vertoforce/generic-crm"
 )
 
@@ -105,10 +106,15 @@ func TestItems(t *testing.T) {
 		toRemove = append(toRemove, item)
 	}
 
-	for _, toRemoveI := range toRemove {
-		err = c.RemoveItems(ctx, toRemoveI)
-		if err != nil {
-			t.Error(err)
-		}
+	err = c.RemoveItems(ctx, toRemove...)
+	assert.NoError(t, err)
+
+	// Make sure there are no items
+	items, err = c.GetItems(ctx)
+	itemCount := 0
+	for range items {
+		itemCount++
 	}
+	assert.NoError(t, err)
+	assert.Equal(t, itemCount, 0)
 }
