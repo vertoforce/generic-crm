@@ -106,12 +106,17 @@ func updateCell(sheet *spreadsheet.Sheet, row int, col int, value string) {
 func (c *Client) Synchronize() error {
 	c.consumeQuota()
 	err := c.Sheet.Synchronize()
-	// Keep trying if we got a resource exhausted message
-	// TODO: Don't try forever?
-	for err != nil && strings.Contains(err.Error(), "RESOURCE_EXHAUSTED") {
-		time.Sleep(time.Second * 5)
-		c.consumeQuota()
-		err = c.Sheet.Synchronize()
+	for err != nil {
+		switch {
+		case strings.Contains(err.Error(), "RESOURCE_EXHAUSTED"):
+			// Keep trying if we got a resource exhausted message
+			// TODO: Don't try forever?
+			time.Sleep(time.Second * 5)
+			c.consumeQuota()
+			err = c.Sheet.Synchronize()
+		case strings.Contains(err.Error(), "Requests must not be empty"):
+			// This isn't a big deal error, just that there are no updates.
+			return nil
 	}
 	return err
 }
