@@ -67,9 +67,9 @@ func (s *SyncMachine) SetDeleteUntouchedItems(deleteUntouchedItems bool) *SyncMa
 
 // Sync Performs the actual sync task, see the description of SyncMachine
 func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
-	// var span opentracing.Span
-	// span, ctx = opentracing.StartSpanFromContext(ctx, "Sync")
-	// defer span.Finish()
+	var span opentracing.Span
+	span, ctx = opentracing.StartSpanFromContext(ctx, "Sync")
+	defer span.Finish()
 
 	// safeItems stores the items that were either created or updated, and therefore should not be removed
 	// It marks the item safe by storing the search function used to find it
