@@ -117,6 +117,7 @@ func (c *Client) Synchronize() error {
 		case strings.Contains(err.Error(), "Requests must not be empty"):
 			// This isn't a big deal error, just that there are no updates.
 			return nil
+		}
 	}
 	return err
 }
