@@ -37,6 +37,12 @@ func (c *Client) RemoveItemsInternal(ctx context.Context, items Items) error {
 	c.Lock()
 	defer c.Unlock()
 
+	// We must synchronize the sheet
+	err := c.Synchronize()
+	if err != nil {
+		return fmt.Errorf("error performing preemtrive synchronize")
+	}
+
 	// First sort to be in order of row numbers
 	sort.Sort(items)
 	offset := 0
@@ -61,7 +67,7 @@ func (c *Client) RemoveItemsInternal(ctx context.Context, items Items) error {
 		offset--
 	}
 	// We need to reload the sheet every time after a deletion unfortunately
-	err := c.loadSheet()
+	err = c.loadSheet()
 	if err != nil {
 		return fmt.Errorf("error reloading sheet:%s", err)
 	}

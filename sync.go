@@ -77,9 +77,14 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 
 	for newItem := range items {
 		markedSafe := false
-
 		// Update each crm
 		for _, crm := range s.crms {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+			}
+
 			processItemSpan, processItemCtx := opentracing.StartSpanFromContext(ctx, "ProcessItem")
 			processItemSpan.SetTag("CRM", reflect.TypeOf(crm).String())
 			// Check if ths CRM contains this item
@@ -114,6 +119,12 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 		}
 	}
 
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
 	// Now we need to delete any items that were not updates or created
 	if s.deleteUntouchedItems {
 		deleteSpan, deleteCtx := opentracing.StartSpanFromContext(ctx, "DeleteUntouchedItems")
@@ -128,6 +139,12 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 
 		itemLoop:
 			for item := range items {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				default:
+				}
+
 				// Check if this item is safe
 			safeItemSearchLoop:
 				for safeItemSearch := range safeItems {
