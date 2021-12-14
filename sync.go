@@ -149,7 +149,7 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 			safeItemSearchLoop:
 				for safeItemSearch := range safeItems {
 					for safeItemKey, safeItemValue := range *safeItemSearch {
-						if itemValue, ok := item.GetFields()[safeItemKey]; !ok || itemValue != safeItemValue {
+						if itemValue, ok := item.GetFields()[safeItemKey]; !ok || !ForgivingEqual(itemValue, safeItemValue) {
 							// This item does not match this safe item, try next one
 							continue safeItemSearchLoop
 						}
@@ -172,4 +172,45 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 	}
 
 	return nil
+}
+
+// forgivingEqual compares two values with some forgiveness in making sure they are equal.
+// For example, if a is a float, and b is an int, but they are the same value, it will return true.
+func ForgivingEqual(a, b interface{}) bool {
+	if a == b {
+		return true
+	}
+
+	// Do number comparisson
+	// Convert both to floats then compare
+	aValue := float64(0)
+	switch a.(type) {
+	case float64:
+		aValue = a.(float64)
+	case int64:
+		aValue = float64(a.(int64))
+	case int32:
+		aValue = float64(a.(int32))
+	default:
+		// If it is not number, we don't use this comparison
+		return false
+	}
+
+	bValue := float64(0)
+	switch b.(type) {
+	case float64:
+		bValue = b.(float64)
+	case int64:
+		bValue = float64(b.(int64))
+	case int32:
+		bValue = float64(b.(int32))
+	default:
+		return false
+	}
+
+	if aValue == bValue {
+		return true
+	}
+
+	return false
 }

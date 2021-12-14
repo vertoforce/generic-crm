@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	crm "github.com/vertoforce/generic-crm"
 )
 
@@ -88,4 +89,26 @@ func TestSync(t *testing.T) {
 		testCRM.RemoveItems(ctx, toDelete...)
 	}
 
+}
+
+func TestForgivingEqual(t *testing.T) {
+	tests := []struct {
+		A     interface{}
+		B     interface{}
+		Equal bool
+	}{
+		{A: float64(1), B: int64(1), Equal: true},
+		{A: int64(1), B: float64(1), Equal: true},
+		{A: "1", B: int64(1), Equal: false},
+		{A: 1, B: 2, Equal: false},
+		{A: "1", B: "1", Equal: true},
+		{A: "1", B: "2", Equal: false},
+	}
+
+	for i, test := range tests {
+		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
+			result := crm.ForgivingEqual(test.A, test.B)
+			require.Equal(t, test.Equal, result)
+		})
+	}
 }
