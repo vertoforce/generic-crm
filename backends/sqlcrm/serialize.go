@@ -48,6 +48,11 @@ func deserializeFields(fields map[string]interface{}) map[string]interface{} {
 			j := fmt.Sprintf("%s", value)
 			err := json.Unmarshal([]byte(j), &newValue)
 			if err != nil || j[0] != '{' { // If we failed to marshal or this field doesn't start with {
+				if newValue != nil {
+					// Return whatever it managed to unmarshal
+					ret[key] = newValue
+					continue
+				}
 				// Just convert this to a string
 				ret[key] = fmt.Sprintf("%s", value)
 				continue
