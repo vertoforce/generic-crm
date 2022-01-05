@@ -43,6 +43,7 @@ func deserializeFields(fields map[string]interface{}) map[string]interface{} {
 	for key, value := range fields {
 		switch value.(type) {
 		case []byte, string:
+			// TODO: This needs to be cleaned up, improved, and tested.
 			// Try to unmarshal
 			var newValue interface{}
 			j := fmt.Sprintf("%s", value)
