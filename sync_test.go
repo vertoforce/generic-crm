@@ -103,6 +103,7 @@ func TestForgivingEqual(t *testing.T) {
 		{A: 1, B: 2, Equal: false},
 		{A: "1", B: "1", Equal: true},
 		{A: "1", B: "2", Equal: false},
+		{A: fmt.Sprintf("%s", interface{}(nil)), B: nil, Equal: true},
 	}
 
 	for i, test := range tests {

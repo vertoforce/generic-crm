@@ -181,6 +181,12 @@ func ForgivingEqual(a, b interface{}) bool {
 		return true
 	}
 
+	if a == fmt.Sprintf("%s", interface{}(nil)) && b == nil ||
+		b == fmt.Sprintf("%s", interface{}(nil)) && a == nil ||
+		b == fmt.Sprintf("%s", interface{}(nil)) && a == fmt.Sprintf("%s", interface{}(nil)) {
+		return true
+	}
+
 	// Do number comparisson
 	// Convert both to floats then compare
 	aValue := float64(0)
