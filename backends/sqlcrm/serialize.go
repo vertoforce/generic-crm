@@ -49,7 +49,9 @@ func deserializeFields(fields map[string]interface{}) map[string]interface{} {
 			err := json.Unmarshal([]byte(j), &newValue)
 			if err != nil || j[0] != '{' { // If we failed to marshal or this field doesn't start with {
 				if newValue != nil {
-					// Return whatever it managed to unmarshal
+					// Use whatever we unmarshalled
+					// This is not JSON in the field, we unmarshalled to something else...
+					// But I am assuming whatever it managed to unmarshal is an accurate representation of what's in the database.
 					ret[key] = newValue
 					continue
 				}
