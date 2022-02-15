@@ -30,8 +30,10 @@ var DefaultSearchFunction = func(i Item) map[string]interface{} {
 // At the end it will delete any items in the CRM that were not updated
 type SyncMachine struct {
 	deleteUntouchedItems bool // At the end should we delete items that were not updated
-	crms                 []CRM
-	searchFunction       SearchFunction
+	// when true, we don't delete items if we didn't update any items.
+	doNotDeleteOnNoUpdate bool
+	crms                  []CRM
+	searchFunction        SearchFunction
 }
 
 // NewSyncMachine creates a new sync machine with the default search function, no crms, and deleteUntouchedItems to true
@@ -62,6 +64,12 @@ func (s *SyncMachine) WithCRMs(crms ...CRM) *SyncMachine {
 // This allows us to make the CRM directly reflect the incoming stream of new items
 func (s *SyncMachine) SetDeleteUntouchedItems(deleteUntouchedItems bool) *SyncMachine {
 	s.deleteUntouchedItems = deleteUntouchedItems
+	return s
+}
+
+// DetDoNotDeleteOnNoUpdate If set true, makes sure we don't delete any items if we didn't perform any updates.
+func (s *SyncMachine) DetDoNotDeleteOnNoUpdate(val bool) *SyncMachine {
+	s.doNotDeleteOnNoUpdate = val
 	return s
 }
 
@@ -125,8 +133,9 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 	default:
 	}
 
-	// Now we need to delete any items that were not updates or created
-	if s.deleteUntouchedItems {
+	// Now we need to delete any items that were not updated or created
+	// We don't do this if doNotDeleteOnNoUpdate is true, and we didn't update any items
+	if s.deleteUntouchedItems && !(s.doNotDeleteOnNoUpdate && len(safeItems) == 0) {
 		deleteSpan, deleteCtx := opentracing.StartSpanFromContext(ctx, "DeleteUntouchedItems")
 		for _, crm := range s.crms {
 			toRemove := []Item{}
