@@ -67,8 +67,8 @@ func (s *SyncMachine) SetDeleteUntouchedItems(deleteUntouchedItems bool) *SyncMa
 	return s
 }
 
-// DetDoNotDeleteOnNoUpdate If set true, makes sure we don't delete any items if we didn't perform any updates.
-func (s *SyncMachine) DetDoNotDeleteOnNoUpdate(val bool) *SyncMachine {
+// SetDoNotDeleteOnNoUpdate If set true, makes sure we don't delete any items if we didn't perform any updates.
+func (s *SyncMachine) SetDoNotDeleteOnNoUpdate(val bool) *SyncMachine {
 	s.doNotDeleteOnNoUpdate = val
 	return s
 }
