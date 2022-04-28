@@ -10,7 +10,8 @@ type Item struct {
 //
 // So if you want to upload an attachment, set this as on of the fields when calling CreateRecord
 type Attachment struct {
-	URL string `json:"url"`
+	URL      string `json:"url"`
+	Filename string `json:"filename"` // Optional
 }
 
 // GetFields of this item
