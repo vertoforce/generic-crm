@@ -72,6 +72,22 @@ func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{
 	return nil, crm.ErrItemNotFound
 }
 
+func (c *Client) Len(ctx context.Context) (uint64, error) {
+	// Just query for all items
+	row := c.db.QueryRowxContext(ctx, fmt.Sprintf("SELECT COUNT(*) FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", "")))
+	if err := row.Err(); err != nil {
+		return 0, fmt.Errorf("error running query: %w", err)
+	}
+
+	var count uint64
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("error scanning query: %w", err)
+	}
+
+	return count, nil
+}
+
 // fieldToSQLWhere Converts a list of fields to a SQL WHERE query (just the part after the WHERE)
 //
 // EX: map[string]interface{}{"name": "test", "item": "item"} -> name="?" AND item="?"

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	crm "github.com/vertoforce/generic-crm"
 )
 
@@ -41,6 +42,10 @@ func TestClient(t *testing.T) {
 		t.Error(err)
 		return
 	}
+
+	num, err := c.Len(context.Background())
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, num, uint64(1))
 
 	// Try to get that specific item
 	item, err := c.GetItem(context.Background(), map[string]interface{}{
