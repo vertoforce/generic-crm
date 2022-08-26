@@ -28,17 +28,18 @@ exampleItemLoop:
 
 		// We didn't find it, create the column
 		// Create fieldType (default is varchar)
-		fieldType := "VARCHAR(500)"
+		fieldType := "TEXT(500)"
 		switch value.(type) {
 		case int64, int32, int:
 			fieldType = "INT(11)"
 		case float64, float32:
 			fieldType = "FLOAT(11)"
 		}
-		_, err := c.db.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD %s %s NULL DEFAULT NULL; ", c.table, key, fieldType))
+		a, err := c.db.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD %s %s NULL DEFAULT NULL; ", c.table, key, fieldType))
 		if err != nil {
 			return err
 		}
+		a.Close()
 	}
 
 	return nil
