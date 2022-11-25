@@ -24,8 +24,8 @@ var DefaultSearchFunction = func(i Item) map[string]interface{} {
 // It's basically the equivalent of deleting everything and adding it again.
 //
 // It loops through the channel of new items and
-//   * Updates the old item in the crm (If it exists)
-//   * Creates the new item if it does not exist
+//   - Updates the old item in the crm (If it exists)
+//   - Creates the new item if it does not exist
 //
 // At the end it will delete any items in the CRM that were not updated
 type SyncMachine struct {
@@ -81,7 +81,7 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 
 	// safeItems stores the items that were either created or updated, and therefore should not be removed
 	// It marks the item safe by storing the search function used to find it
-	safeItems := map[*map[string]interface{}]bool{}
+	safeItems := []map[string]interface{}{}
 
 	for newItem := range items {
 		markedSafe := false
@@ -107,7 +107,7 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 					return err
 				}
 				if !markedSafe {
-					safeItems[&newItemSearch] = true
+					safeItems = append(safeItems, newItemSearch)
 					markedSafe = true
 				}
 				continue
@@ -120,7 +120,7 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 				return err
 			}
 			if !markedSafe {
-				safeItems[&newItemSearch] = true
+				safeItems = append(safeItems, newItemSearch)
 				markedSafe = true
 			}
 			processItemSpan.Finish()
@@ -156,8 +156,8 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 
 				// Check if this item is safe
 			safeItemSearchLoop:
-				for safeItemSearch := range safeItems {
-					for safeItemKey, safeItemValue := range *safeItemSearch {
+				for _, safeItemSearch := range safeItems {
+					for safeItemKey, safeItemValue := range safeItemSearch {
 						if itemValue, ok := item.GetFields()[safeItemKey]; !ok || !ForgivingEqual(itemValue, safeItemValue) {
 							// This item does not match this safe item, try next one
 							continue safeItemSearchLoop
@@ -194,6 +194,13 @@ func ForgivingEqual(a, b interface{}) bool {
 		b == fmt.Sprintf("%s", interface{}(nil)) && a == nil ||
 		b == fmt.Sprintf("%s", interface{}(nil)) && a == fmt.Sprintf("%s", interface{}(nil)) {
 		return true
+	}
+
+	// Do more forgiving string comparison
+	if byteVal, ok := a.([]byte); ok {
+		if string(byteVal) == b {
+			return true
+		}
 	}
 
 	// Do number comparisson
