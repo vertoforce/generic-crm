@@ -23,7 +23,7 @@ func (c *Client) UpdateItem(ctx context.Context, i crm.Item, updateFields map[st
 	setQuery := strings.Join(sets, ",")
 
 	r, err := c.DB.QueryxContext(ctx, fmt.Sprintf("UPDATE %s SET %s WHERE %s",
-		strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""),
+		strings.ReplaceAll(pq.QuoteIdentifier(c.Table), "\"", ""),
 		setQuery,
 		whereQuery,
 	), append(setValues, whereValues...)...)

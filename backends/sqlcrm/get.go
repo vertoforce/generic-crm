@@ -21,12 +21,12 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 		// This is a where search, generate where query
 		whereQuery, whereValues := fieldsToSQLWhere(serializeFields(searchFields[0]))
 		rows, err = c.DB.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s WHERE %s",
-			strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""),
+			strings.ReplaceAll(pq.QuoteIdentifier(c.Table), "\"", ""),
 			whereQuery,
 		), whereValues...)
 	} else {
 		// Just query for all items
-		rows, err = c.DB.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", "")))
+		rows, err = c.DB.QueryxContext(ctx, fmt.Sprintf("SELECT * FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.Table), "\"", "")))
 	}
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{
 
 func (c *Client) Len(ctx context.Context) (uint64, error) {
 	// Just query for all items
-	row := c.DB.QueryRowxContext(ctx, fmt.Sprintf("SELECT COUNT(*) FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", "")))
+	row := c.DB.QueryRowxContext(ctx, fmt.Sprintf("SELECT COUNT(*) FROM %s", strings.ReplaceAll(pq.QuoteIdentifier(c.Table), "\"", "")))
 	if err := row.Err(); err != nil {
 		return 0, fmt.Errorf("error running query: %w", err)
 	}

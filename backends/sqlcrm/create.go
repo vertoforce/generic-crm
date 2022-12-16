@@ -34,7 +34,7 @@ func (c *Client) generateCreateQueryFromItem(i crm.Item) (query string, values [
 		values = append(values, value)
 	}
 
-	query = fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", c.table, strings.Join(fieldNames, ","), strings.Join(repeat("?", len(fieldNames)), ","))
+	query = fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", c.Table, strings.Join(fieldNames, ","), strings.Join(repeat("?", len(fieldNames)), ","))
 
 	return query, values
 }

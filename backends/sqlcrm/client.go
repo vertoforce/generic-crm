@@ -7,7 +7,7 @@ import (
 
 type Client struct {
 	DB    *sqlx.DB
-	table string
+	Table string
 }
 
 // NewCRM Creates a new sql crm
@@ -26,7 +26,7 @@ func NewCRM(connectionURL string, table string) (*Client, error) {
 
 	c := &Client{
 		DB:    db,
-		table: table,
+		Table: table,
 	}
 
 	return c, nil

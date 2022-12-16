@@ -24,7 +24,7 @@ func (c *Client) RemoveItems(ctx context.Context, items ...crm.Item) error {
 func (c *Client) RemoveItem(ctx context.Context, item crm.Item) error {
 	whereQuery, whereValues := fieldsToSQLWhere(serializeFields(item.GetFields()))
 	r, err := c.DB.QueryContext(ctx, fmt.Sprintf("DELETE FROM %s WHERE %s",
-		strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""),
+		strings.ReplaceAll(pq.QuoteIdentifier(c.Table), "\"", ""),
 		whereQuery,
 	), whereValues...)
 	defer r.Close()
