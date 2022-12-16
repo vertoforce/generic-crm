@@ -23,7 +23,7 @@ func (c *Client) RemoveItems(ctx context.Context, items ...crm.Item) error {
 // RemoveItem from the CRM
 func (c *Client) RemoveItem(ctx context.Context, item crm.Item) error {
 	whereQuery, whereValues := fieldsToSQLWhere(serializeFields(item.GetFields()))
-	r, err := c.db.QueryContext(ctx, fmt.Sprintf("DELETE FROM %s WHERE %s",
+	r, err := c.DB.QueryContext(ctx, fmt.Sprintf("DELETE FROM %s WHERE %s",
 		strings.ReplaceAll(pq.QuoteIdentifier(c.table), "\"", ""),
 		whereQuery,
 	), whereValues...)

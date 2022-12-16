@@ -14,7 +14,7 @@ import (
 // So if you store a map or []string, it will serialize it to store it as JSON
 func (c *Client) CreateItem(ctx context.Context, i crm.Item) error {
 	query, values := c.generateCreateQueryFromItem(i)
-	r, err := c.db.QueryxContext(ctx, query, values...)
+	r, err := c.DB.QueryxContext(ctx, query, values...)
 	if err != nil {
 		return err
 	}

@@ -35,7 +35,7 @@ exampleItemLoop:
 		case float64, float32:
 			fieldType = "FLOAT(11)"
 		}
-		a, err := c.db.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD %s %s NULL DEFAULT NULL; ", c.table, key, fieldType))
+		a, err := c.DB.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD %s %s NULL DEFAULT NULL; ", c.table, key, fieldType))
 		if err != nil {
 			return err
 		}
@@ -48,7 +48,7 @@ exampleItemLoop:
 // getColumns returns a map of column name to it's type
 func (c *Client) getColumns(ctx context.Context) (map[string]string, error) {
 	// Get table columns
-	rows, err := c.db.QueryxContext(ctx, fmt.Sprintf("SELECT COLUMN_NAME,COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'%s'", c.table))
+	rows, err := c.DB.QueryxContext(ctx, fmt.Sprintf("SELECT COLUMN_NAME,COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'%s'", c.table))
 	if err != nil {
 		return nil, err
 	}

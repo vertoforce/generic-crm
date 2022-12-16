@@ -6,7 +6,7 @@ import (
 )
 
 type Client struct {
-	db    *sqlx.DB
+	DB    *sqlx.DB
 	table string
 }
 
@@ -25,7 +25,7 @@ func NewCRM(connectionURL string, table string) (*Client, error) {
 	}
 
 	c := &Client{
-		db:    db,
+		DB:    db,
 		table: table,
 	}
 
@@ -34,5 +34,5 @@ func NewCRM(connectionURL string, table string) (*Client, error) {
 
 // Close the database
 func (c *Client) Close() error {
-	return c.db.Close()
+	return c.DB.Close()
 }
