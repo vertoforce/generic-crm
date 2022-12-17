@@ -43,25 +43,28 @@ func deserializeFields(fields map[string]interface{}) map[string]interface{} {
 	for key, value := range fields {
 		switch value.(type) {
 		case []byte, string:
+			// Use raw value by default
+			ret[key] = value
+
 			// Try to unmarshal
 			var newValue interface{}
 			j := fmt.Sprintf("%s", value)
+			if len(j) == 0 {
+				break
+			}
 			if j[0] != '{' { // This isn't JSON, just use raw value
-				// Just convert this to a string
-				ret[key] = value
+				break
 			}
 			err := json.Unmarshal([]byte(j), &newValue)
 			if err != nil {
-				// This only happens when this just happened to be serializable
+				// This only happens when this just happened to start with {
 				// Use the raw value
-				ret[key] = value
-				continue
+				break
 			}
 			// We did it, extract the value from this
 			if p, ok := newValue.(map[string]interface{}); ok {
 				if v, ok := p["value"]; ok {
 					ret[key] = v
-					continue
 				}
 			}
 		default:

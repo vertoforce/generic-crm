@@ -22,6 +22,7 @@ func TestSerialize(t *testing.T) {
 		"time":             time.Now(),
 		"stringQuoted":     "\"test\"",
 		"stringInByteForm": []byte("test"),
+		"empty":            "",
 	}
 
 	// Try to serialize and deserialize and make sure the result is the same as the original
