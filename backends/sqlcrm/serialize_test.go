@@ -1,9 +1,10 @@
 package sqlcrm
 
 import (
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestSerialize(t *testing.T) {
@@ -16,15 +17,14 @@ func TestSerialize(t *testing.T) {
 			One string
 			Two []byte
 		}{One: "One", Two: []byte{0, 1, 2}},
-		"Number": int64(5),
-		"float":  float64(5.3),
-		"time":   time.Now(),
+		"Number":           int64(5),
+		"float":            float64(5.3),
+		"time":             time.Now(),
+		"stringQuoted":     "\"test\"",
+		"stringInByteForm": []byte("test"),
 	}
 
 	// Try to serialize and deserialize and make sure the result is the same as the original
 	processed := deserializeFields(serializeFields(test))
-	if !reflect.DeepEqual(processed, test) {
-		t.Errorf("test failed")
-	}
-
+	require.Equal(t, test, processed)
 }
