@@ -44,7 +44,7 @@ func deserializeFields(fields map[string]interface{}) map[string]interface{} {
 		switch value.(type) {
 		case []byte, string:
 			// Use raw value by default
-			ret[key] = value
+			ret[key] = fmt.Sprintf("%s", value)
 
 			// Try to unmarshal
 			var newValue interface{}

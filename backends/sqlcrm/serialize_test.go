@@ -27,5 +27,6 @@ func TestSerialize(t *testing.T) {
 
 	// Try to serialize and deserialize and make sure the result is the same as the original
 	processed := deserializeFields(serializeFields(test))
+	test["stringInByteForm"] = interface{}(string("test"))
 	require.Equal(t, test, processed)
 }
