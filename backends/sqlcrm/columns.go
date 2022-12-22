@@ -35,7 +35,7 @@ exampleItemLoop:
 		switch reflect.TypeOf(value).Kind() {
 		case reflect.String:
 			// Check if it can be parsed as a date
-			dateVal, err := dateparse.ParseAny(value.(string))
+			_, err := dateparse.ParseAny(value.(string))
 			if err == nil {
 				fieldType = "Datetime"
 			}
