@@ -11,6 +11,8 @@ import (
 	crm "github.com/vertoforce/generic-crm"
 )
 
+type TimeDefaultNow time.Time
+
 // UpdateColumns would add new columns based on the example item.
 // Currently not supported
 func (c *Client) UpdateColumns(ctx context.Context, exampleItem crm.Item) error {
@@ -45,6 +47,8 @@ exampleItemLoop:
 			fieldType = "FLOAT(11)"
 		case reflect.TypeOf(time.Time{}).Kind():
 			fieldType = "Datetime"
+		case reflect.TypeOf(TimeDefaultNow{}).Kind():
+			fieldType = "Datetime DEFAULT now()"
 		}
 		switch value.(type) {
 		case int64, int32, int:
