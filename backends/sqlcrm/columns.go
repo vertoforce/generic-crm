@@ -3,8 +3,11 @@ package sqlcrm
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
+	"time"
 
+	"github.com/araddon/dateparse"
 	crm "github.com/vertoforce/generic-crm"
 )
 
@@ -27,13 +30,25 @@ exampleItemLoop:
 		}
 
 		// We didn't find it, create the column
-		// Create fieldType (default is varchar)
+		// Create fieldType (default is text)
 		fieldType := "TEXT(500)"
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.String:
+			// Check if it can be parsed as a date
+			dateVal, err := dateparse.ParseAny(value.(string))
+			if err == nil {
+				fieldType = "Datetime"
+			}
+		case reflect.Int, reflect.Int32, reflect.Int64:
+			fieldType = "INT(11)"
+		case reflect.Float32, reflect.Float64:
+			fieldType = "FLOAT(11)"
+		case reflect.TypeOf(time.Time{}).Kind():
+			fieldType = "Datetime"
+		}
 		switch value.(type) {
 		case int64, int32, int:
-			fieldType = "INT(11)"
 		case float64, float32:
-			fieldType = "FLOAT(11)"
 		}
 		a, err := c.DB.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD %s %s NULL DEFAULT NULL; ", c.Table, key, fieldType))
 		if err != nil {
