@@ -20,7 +20,8 @@ func (c *Client) GetItems(ctx context.Context, items chan crm.Item, searchFields
 	var err error
 	if len(searchFields) > 0 && searchFields[0] != nil && len(searchFields[0]) > 0 {
 		// This is a where search, generate where query
-		serializedFields, err := c.serializeFields(ctx, searchFields[0])
+		var serializedFields map[string]interface{}
+		serializedFields, err = c.serializeFields(ctx, searchFields[0])
 		if err != nil {
 			return fmt.Errorf("error serializing fields: %w", err)
 		}
