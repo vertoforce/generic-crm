@@ -1,6 +1,8 @@
 package sqlcrm
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -14,10 +16,12 @@ type Client struct {
 	columnsCache *agecache.Cache[string, map[string]string]
 }
 
+var ErrTableNotFound = fmt.Errorf("table not found")
+
 // NewCRM Creates a new sql crm
 //
 // Connection string should look like `user:password@tcp(127.0.0.1:3306)/hello`
-func NewCRM(connectionURL string, table string) (*Client, error) {
+func NewCRM(ctx context.Context, connectionURL string, table string) (*Client, error) {
 	db, err := sqlx.Open("mysql", connectionURL)
 	if err != nil {
 		return nil, err
@@ -35,6 +39,15 @@ func NewCRM(connectionURL string, table string) (*Client, error) {
 			MaxAge:   time.Minute,
 			Capacity: 1,
 		}),
+	}
+
+	// Make sure table exists
+	columns, err := c.getColumns(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error listing columns for table: %w", err)
+	}
+	if len(columns) == 0 {
+		return nil, ErrTableNotFound
 	}
 
 	return c, nil

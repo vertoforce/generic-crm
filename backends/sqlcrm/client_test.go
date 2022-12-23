@@ -3,6 +3,7 @@ package sqlcrm
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -15,11 +16,13 @@ import (
 // item varchar
 // test varchar
 func TestClient(t *testing.T) {
-	c, err := NewCRM("root:pass@tcp(10.0.0.99:3306)/db", "test")
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	ctx := context.Background()
+
+	_, err := NewCRM(ctx, os.Getenv("TESTING_SQL_URL"), "doesnotexist")
+	require.ErrorIs(t, err, ErrTableNotFound)
+
+	c, err := NewCRM(ctx, os.Getenv("TESTING_SQL_URL"), "test")
+	require.NoError(t, err)
 
 	// Try creating a new column
 	err = c.UpdateColumns(context.Background(), &crm.DefaultItem{Fields: map[string]interface{}{
