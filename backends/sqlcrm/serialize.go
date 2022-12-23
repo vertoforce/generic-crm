@@ -1,40 +1,61 @@
 package sqlcrm
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
+
+	"github.com/araddon/dateparse"
 )
 
 // serializeFields Converts an item's fields to how they will be stored in the crm.
 // It basically serializes hard to store fields to something sql can store
-func serializeFields(fields map[string]interface{}) map[string]interface{} {
+// It will also reference the existing sql schema to know what datatypes the incoming data should be transformed in to.
+func (c *Client) serializeFields(ctx context.Context, fields map[string]interface{}) (map[string]interface{}, error) {
+	columns, err := c.getColumns(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting columns: %w", err)
+	}
+
 	ret := map[string]interface{}{}
 	for key, value := range fields {
+		sqlDataType := columns[key]
+
 		// Convert the value if it needs to be changed
-		var valueP interface{}
 		switch t := reflect.TypeOf(value); {
 		case t == nil:
 			continue
+		case t.Kind() == reflect.String:
+			switch strings.ToLower(sqlDataType) {
+			case "datetime":
+				date, err := dateparse.ParseAny(value.(string))
+				if err != nil {
+					// Cannot convert to date.  Cannot insert this column
+					continue
+				}
+				ret[key] = date
+			default:
+				ret[key] = value
+			}
 		case t.Kind() == reflect.TypeOf(time.Time{}).Kind():
-			valueP = value
+			ret[key] = value
 		case (t.Kind() == reflect.Slice || t.Kind() == reflect.Array) && t.Elem().Kind() == reflect.Uint8:
 			// This is a []byte, a special case to just use this raw value
 			// Just use this raw value
-			valueP = value
+			ret[key] = value
 		case t.Kind() == reflect.Slice, t.Kind() == reflect.Array, t.Kind() == reflect.Map, t.Kind() == reflect.Struct:
 			// Convert to json
 			json, _ := json.Marshal(map[string]interface{}{"value": value})
-			valueP = fmt.Sprintf("%s", json)
+			ret[key] = string(json)
 		default:
-			valueP = value
+			ret[key] = value
 		}
-
-		ret[key] = valueP
 	}
 
-	return ret
+	return ret, nil
 }
 
 // deserializeFields will look for JSON fields and unmarshal them
@@ -45,6 +66,11 @@ func deserializeFields(fields map[string]interface{}) map[string]interface{} {
 		case []byte, string:
 			// Use raw value by default
 			ret[key] = fmt.Sprintf("%s", value)
+
+			if time, err := time.Parse("2006-01-02 15:04:05", ret[key].(string)); err == nil {
+				ret[key] = time
+				continue
+			}
 
 			// Try to unmarshal
 			var newValue interface{}

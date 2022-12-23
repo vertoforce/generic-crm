@@ -11,12 +11,20 @@ import (
 
 // UpdateItem in the crm
 func (c *Client) UpdateItem(ctx context.Context, i crm.Item, updateFields map[string]interface{}) error {
-	whereQuery, whereValues := fieldsToSQLWhere(serializeFields(i.GetFields()))
+	serializedFields, err := c.serializeFields(ctx, i.GetFields())
+	if err != nil {
+		return fmt.Errorf("failed to serialize fields: %w", err)
+	}
+	whereQuery, whereValues := fieldsToSQLWhere(serializedFields)
 
 	// Create set instructions
 	sets := []string{}
 	setValues := []interface{}{}
-	for key, value := range serializeFields(updateFields) {
+	serializedFields, err = c.serializeFields(ctx, updateFields)
+	if err != nil {
+		return fmt.Errorf("failed to serialize update fields: %w", err)
+	}
+	for key, value := range serializedFields {
 		sets = append(sets, fmt.Sprintf("%s=?", key))
 		setValues = append(setValues, value)
 	}

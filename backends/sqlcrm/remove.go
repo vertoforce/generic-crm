@@ -22,7 +22,11 @@ func (c *Client) RemoveItems(ctx context.Context, items ...crm.Item) error {
 
 // RemoveItem from the CRM
 func (c *Client) RemoveItem(ctx context.Context, item crm.Item) error {
-	whereQuery, whereValues := fieldsToSQLWhere(serializeFields(item.GetFields()))
+	serializedFields, err := c.serializeFields(ctx, item.GetFields())
+	if err != nil {
+		return fmt.Errorf("error serializing fields: %w", err)
+	}
+	whereQuery, whereValues := fieldsToSQLWhere(serializedFields)
 	r, err := c.DB.QueryContext(ctx, fmt.Sprintf("DELETE FROM %s WHERE %s",
 		strings.ReplaceAll(pq.QuoteIdentifier(c.Table), "\"", ""),
 		whereQuery,

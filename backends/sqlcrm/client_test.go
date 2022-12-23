@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	crm "github.com/vertoforce/generic-crm"
@@ -14,7 +15,7 @@ import (
 // item varchar
 // test varchar
 func TestClient(t *testing.T) {
-	c, err := NewCRM("root:pass@tcp(127.0.0.1:3306)/db", "test")
+	c, err := NewCRM("root:pass@tcp(10.0.0.99:3306)/db", "test")
 	if err != nil {
 		t.Error(err)
 		return
@@ -25,23 +26,21 @@ func TestClient(t *testing.T) {
 		"TestColumn":  "TEST",
 		"TestColumn2": "TEST",
 		"name":        "name",
+		"item":        "item",
+		"test":        "",
+		"date":        "1/2/2022 10:00:00",
 	}})
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	require.NoError(t, err)
 
 	err = c.CreateItem(context.Background(), &crm.DefaultItem{
 		Fields: map[string]interface{}{
 			"name": "Name 1",
 			"item": "item",
 			"test": []string{"1", "2"},
+			"date": "1/2/2022 10:00:00 Z",
 		},
 	})
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	require.NoError(t, err)
 
 	num, err := c.Len(context.Background())
 	require.NoError(t, err)
@@ -51,10 +50,10 @@ func TestClient(t *testing.T) {
 	item, err := c.GetItem(context.Background(), map[string]interface{}{
 		"name": "Name 1",
 	})
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	require.NoError(t, err)
+	itemFields := item.GetFields()
+	require.Equal(t, "Name 1", itemFields["name"])
+	require.Equal(t, time.Date(2022, 01, 02, 10, 00, 0, 0, time.UTC), itemFields["date"])
 	if item.GetFields()["name"].(string) != "Name 1" {
 		t.Errorf("Did not get expected item")
 		return
@@ -67,11 +66,12 @@ func TestClient(t *testing.T) {
 		return
 	}
 
-	itemsChan, err := c.GetItems(context.Background())
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	itemsChan := make(chan crm.Item)
+	go func() {
+		defer close(itemsChan)
+		err := c.GetItems(context.Background(), itemsChan)
+		require.NoError(t, err)
+	}()
 	items := []crm.Item{}
 	for item := range itemsChan {
 		items = append(items, item)

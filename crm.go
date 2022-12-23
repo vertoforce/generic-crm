@@ -17,7 +17,7 @@ var (
 // so a Synchronize function is provided on crms also.
 type CRM interface {
 	// Get all items with optional searchFields
-	GetItems(ctx context.Context, searchFields ...map[string]interface{}) (chan Item, error)
+	GetItems(ctx context.Context, items chan Item, searchFields ...map[string]interface{}) error
 	GetItem(ctx context.Context, searchFields map[string]interface{}) (Item, error)
 	RemoveItems(ctx context.Context, i ...Item) error
 	CreateItem(ctx context.Context, i Item) error

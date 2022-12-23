@@ -1,13 +1,17 @@
 package sqlcrm
 
 import (
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/segmentio/agecache"
 )
 
 type Client struct {
-	DB    *sqlx.DB
-	Table string
+	DB           *sqlx.DB
+	Table        string
+	columnsCache *agecache.Cache[string, map[string]string]
 }
 
 // NewCRM Creates a new sql crm
@@ -27,6 +31,10 @@ func NewCRM(connectionURL string, table string) (*Client, error) {
 	c := &Client{
 		DB:    db,
 		Table: table,
+		columnsCache: agecache.New(agecache.Config[string, map[string]string]{
+			MaxAge:   time.Minute,
+			Capacity: 1,
+		}),
 	}
 
 	return c, nil

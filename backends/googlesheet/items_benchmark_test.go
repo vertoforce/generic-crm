@@ -35,7 +35,12 @@ func BenchmarkGetItem(b *testing.B) {
 
 	b.Run("FindItems", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			items, err := client.GetItems(ctx, map[string]interface{}{"Name": fmt.Sprintf("impossible to find me %d", i)})
+			items := make(chan crm.Item)
+			go func() {
+				defer close(items)
+				err := client.GetItems(ctx, items, map[string]interface{}{"Name": fmt.Sprintf("impossible to find me %d", i)})
+				require.NoError(b, err)
+			}()
 			for range items {
 			}
 			assert.NoError(b, err)

@@ -65,11 +65,12 @@ func TestSync(t *testing.T) {
 
 	// Check if the CRMs are in the state we'd expect
 	for _, testCRM := range testCRMs {
-		items, err := testCRM.GetItems(ctx)
-		if err != nil {
-			t.Error(err)
-			return
-		}
+		items := make(chan crm.Item)
+		go func() {
+			defer close(items)
+			err := testCRM.GetItems(ctx, items)
+			require.NoError(t, err)
+		}()
 		foundNames := map[string]bool{}
 		toDelete := []crm.Item{}
 		for item := range items {

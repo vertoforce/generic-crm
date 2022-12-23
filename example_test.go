@@ -28,7 +28,12 @@ func Example() {
 		},
 	})
 
-	items, _ := c.GetItems(context.Background())
+	items := make(chan crm.Item)
+	go func() {
+		defer close(items)
+		err := c.GetItems(context.Background(), items)
+		_ = err
+	}()
 	toRemove := []crm.Item{}
 	for item := range items {
 		toRemove = append(toRemove, item)

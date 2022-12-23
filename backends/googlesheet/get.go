@@ -6,6 +6,7 @@ import (
 
 	"github.com/opentracing/opentracing-go"
 	crm "github.com/vertoforce/generic-crm"
+	"golang.org/x/sync/errgroup"
 )
 
 // GetItem searches for an item based on field values, will return first item that matches
@@ -13,26 +14,34 @@ import (
 func (c *Client) GetItem(ctx context.Context, searchValues map[string]interface{}) (crm.Item, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "GetItemGoogleSheet")
 	defer span.Finish()
-	subContext, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	items, err := c.GetItems(subContext, searchValues)
-	if err != nil {
-		return nil, err
-	}
+
+	items := make(chan crm.Item)
+
+	errGroup, ctx := errgroup.WithContext(ctx)
+	errGroup.Go(func() error {
+		return c.GetItems(ctx, items, searchValues)
+	})
+
+	// Return first found item
 	for item := range items {
 		return item, nil
+	}
+
+	err := errGroup.Wait()
+	if err != nil {
+		return nil, err
 	}
 
 	return nil, crm.ErrItemNotFound
 }
 
 // GetItems returns all the items in the sheet
-func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interface{}) (chan crm.Item, error) {
+func (c *Client) GetItems(ctx context.Context, items chan crm.Item, searchFields ...map[string]interface{}) error {
 	var span opentracing.Span
 	span, ctx = opentracing.StartSpanFromContext(ctx, "GetItemsGoogleSheet")
 	// TODO: Reload sheet if we haven't in some time (to make sure we got the latest updates)
-
-	items := make(chan crm.Item)
 
 	// Build map of column number to desired value from the searchFields
 	// This is so we can be more efficient in searching each row
@@ -49,53 +58,48 @@ func (c *Client) GetItems(ctx context.Context, searchFields ...map[string]interf
 		}
 	}
 
-	go func() {
-		defer close(items)
-		defer span.Finish()
+	defer span.Finish()
 
-		numItems := c.NumItems(ctx)
-	itemLoop:
-		for r := 1; r < numItems+1; r++ {
-			select {
-			case <-ctx.Done():
-				return
-			default:
+	numItems := c.NumItems(ctx)
+itemLoop:
+	for r := 1; r < numItems+1; r++ {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		row := c.Sheet.Rows[r]
+
+		// Check if this item matches
+		for colNum, value := range searchValuesRowBased {
+			if colNum >= len(row) {
+				// Bad row, doesn't match
+				continue itemLoop
 			}
-
-			row := c.Sheet.Rows[r]
-
-			// Check if this item matches
-			for colNum, value := range searchValuesRowBased {
-				if colNum >= len(row) {
-					// Bad row, doesn't match
-					continue itemLoop
-				}
-				if !reflect.DeepEqual(row[colNum].Value, value) {
-					// This didn't match
-					continue itemLoop
-				}
-			}
-
-			// Build item to send
-			item := &Item{RowNumber: r, Fields: []string{}, client: c}
-			// Fill in fields
-			for i, col := range row {
-				if i >= len(c.Headers) {
-					// Fields beyond the headers, ignore these
-					break
-				}
-				item.Fields = append(item.Fields, col.Value)
-			}
-
-			select {
-			case <-ctx.Done():
-				return
-			case items <- item:
+			if !reflect.DeepEqual(row[colNum].Value, value) {
+				// This didn't match
+				continue itemLoop
 			}
 		}
-	}()
 
-	return items, nil
+		// Build item to send
+		item := &Item{RowNumber: r, Fields: []string{}, client: c}
+		// Fill in fields
+		for i, col := range row {
+			if i >= len(c.Headers) {
+				// Fields beyond the headers, ignore these
+				break
+			}
+			item.Fields = append(item.Fields, col.Value)
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case items <- item:
+		}
+	}
+
+	return nil
 }
 
 // NumItems Gets the number of items in the sheet.  If headers are enabled, it does NOT count the first row

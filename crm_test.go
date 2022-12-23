@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	crm "github.com/vertoforce/generic-crm"
 	"github.com/vertoforce/generic-crm/backends/airtablecrm"
 	"github.com/vertoforce/generic-crm/backends/googlesheet"
@@ -71,11 +72,12 @@ func TestCRM(t *testing.T) {
 		}
 
 		// Get all items
-		items, err := testCRM.GetItems(context.Background())
-		if err != nil {
-			t.Error(err)
-			return
-		}
+		items := make(chan crm.Item)
+		go func() {
+			defer close(items)
+			err := testCRM.GetItems(context.Background(), items)
+			require.NoError(t, err)
+		}()
 
 		// Delete our created item
 		var toDelete crm.Item

@@ -13,7 +13,10 @@ import (
 // Note that this will serialize special types stored in the database.
 // So if you store a map or []string, it will serialize it to store it as JSON
 func (c *Client) CreateItem(ctx context.Context, i crm.Item) error {
-	query, values := c.generateCreateQueryFromItem(i)
+	query, values, err := c.generateCreateQueryFromItem(ctx, i)
+	if err != nil {
+		return fmt.Errorf("error generating query: %w", err)
+	}
 	r, err := c.DB.QueryxContext(ctx, query, values...)
 	if err != nil {
 		return err
@@ -24,8 +27,11 @@ func (c *Client) CreateItem(ctx context.Context, i crm.Item) error {
 }
 
 // generateCreateQueryFromItem converts the crm item to the sql query to insert it
-func (c *Client) generateCreateQueryFromItem(i crm.Item) (query string, values []interface{}) {
-	fields := serializeFields(i.GetFields())
+func (c *Client) generateCreateQueryFromItem(ctx context.Context, i crm.Item) (query string, values []interface{}, err error) {
+	fields, err := c.serializeFields(ctx, i.GetFields())
+	if err != nil {
+		return "", nil, fmt.Errorf("error serializing fields: %w", err)
+	}
 
 	fieldNames := []string{}
 	values = []interface{}{}
@@ -36,7 +42,7 @@ func (c *Client) generateCreateQueryFromItem(i crm.Item) (query string, values [
 
 	query = fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", c.Table, strings.Join(fieldNames, ","), strings.Join(repeat("?", len(fieldNames)), ","))
 
-	return query, values
+	return query, values, nil
 }
 
 func repeat(s string, count int) []string {

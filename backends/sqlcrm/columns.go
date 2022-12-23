@@ -66,13 +66,18 @@ exampleItemLoop:
 
 // getColumns returns a map of column name to it's type
 func (c *Client) getColumns(ctx context.Context) (map[string]string, error) {
+	columns, found := c.columnsCache.Get("columns")
+	if found {
+		return columns, nil
+	}
+
 	// Get table columns
 	rows, err := c.DB.QueryxContext(ctx, fmt.Sprintf("SELECT COLUMN_NAME,COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'%s'", c.Table))
 	if err != nil {
 		return nil, err
 	}
 
-	columns := map[string]string{}
+	columns = map[string]string{}
 	for rows.Next() {
 		row := map[string]interface{}{}
 		rows.MapScan(row)
@@ -86,6 +91,8 @@ func (c *Client) getColumns(ctx context.Context) (map[string]string, error) {
 		}
 		columns[fmt.Sprintf("%s", columnName)] = fmt.Sprintf("%s", columnType)
 	}
+
+	c.columnsCache.Set("columns", columns)
 
 	return columns, nil
 }

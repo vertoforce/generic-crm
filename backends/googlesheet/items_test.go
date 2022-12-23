@@ -8,6 +8,7 @@ import (
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	crm "github.com/vertoforce/generic-crm"
 	"go.elastic.co/apm"
 	"go.elastic.co/apm/module/apmot"
@@ -42,11 +43,12 @@ func TestItems(t *testing.T) {
 	}
 
 	// Get the items
-	items, err := c.GetItems(context.Background())
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	items := make(chan crm.Item)
+	go func() {
+		defer close(items)
+		err := c.GetItems(context.Background(), items)
+		require.NoError(t, err)
+	}()
 	count := 0
 	var lastItem crm.Item
 	toRemove := []crm.Item{}
@@ -102,11 +104,12 @@ func TestItems(t *testing.T) {
 
 	// Fetch all remaining items and remove them
 	toRemove = []crm.Item{}
-	items, err = c.GetItems(ctx)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	items = make(chan crm.Item)
+	go func() {
+		defer close(items)
+		err := c.GetItems(context.Background(), items)
+		require.NoError(t, err)
+	}()
 	for item := range items {
 		toRemove = append(toRemove, item)
 	}
@@ -115,7 +118,12 @@ func TestItems(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Make sure there are no items
-	items, err = c.GetItems(ctx)
+	items = make(chan crm.Item)
+	go func() {
+		defer close(items)
+		err := c.GetItems(context.Background(), items)
+		require.NoError(t, err)
+	}()
 	itemCount := 0
 	for range items {
 		itemCount++

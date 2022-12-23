@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/opentracing/opentracing-go"
+	"golang.org/x/sync/errgroup"
 )
 
 // SearchFunction is a function that given an item, return the search fields to find that unique item.
@@ -141,10 +142,12 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 			toRemove := []Item{}
 
 			// Go through each item to check if it's safe
-			items, err := crm.GetItems(deleteCtx)
-			if err != nil {
-				return fmt.Errorf("failed to get items to delete old items: %s", err)
-			}
+			items := make(chan Item)
+			errGroup, deleteCtx := errgroup.WithContext(deleteCtx)
+			errGroup.Go(func() error {
+				defer close(items)
+				return crm.GetItems(deleteCtx, items)
+			})
 
 		itemLoop:
 			for item := range items {
@@ -171,8 +174,12 @@ func (s *SyncMachine) Sync(ctx context.Context, items chan Item) error {
 				toRemove = append(toRemove, item)
 			}
 
+			if err := errGroup.Wait(); err != nil {
+				return fmt.Errorf("failed to get items to delete old items: %s", err)
+			}
+
 			// Remove all items marked for deletion
-			err = crm.RemoveItems(deleteCtx, toRemove...)
+			err := crm.RemoveItems(deleteCtx, toRemove...)
 			if err != nil {
 				return fmt.Errorf("failed to delete item: %s", err)
 			}
