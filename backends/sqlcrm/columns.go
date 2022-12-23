@@ -61,6 +61,13 @@ exampleItemLoop:
 		a.Close()
 	}
 
+	// Re update column cache
+	c.columnsCache.Clear()
+	_, err = c.getColumns(ctx)
+	if err != nil {
+		return fmt.Errorf("error re-updating columns cache: %w", err)
+	}
+
 	return nil
 }
 

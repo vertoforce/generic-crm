@@ -3,10 +3,12 @@ package sqlcrm
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/segmentio/agecache"
 )
 
@@ -16,13 +18,19 @@ type Client struct {
 	columnsCache *agecache.Cache[string, map[string]string]
 }
 
+type Config struct {
+	ConnectionURL          string
+	Table                  string
+	CreateTableIfNotExists bool
+}
+
 var ErrTableNotFound = fmt.Errorf("table not found")
 
 // NewCRM Creates a new sql crm
 //
 // Connection string should look like `user:password@tcp(127.0.0.1:3306)/hello`
-func NewCRM(ctx context.Context, connectionURL string, table string) (*Client, error) {
-	db, err := sqlx.Open("mysql", connectionURL)
+func NewCRM(ctx context.Context, config Config) (*Client, error) {
+	db, err := sqlx.Open("mysql", config.ConnectionURL)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +42,7 @@ func NewCRM(ctx context.Context, connectionURL string, table string) (*Client, e
 
 	c := &Client{
 		DB:    db,
-		Table: table,
+		Table: config.Table,
 		columnsCache: agecache.New(agecache.Config[string, map[string]string]{
 			MaxAge:   time.Minute,
 			Capacity: 1,
@@ -47,7 +55,18 @@ func NewCRM(ctx context.Context, connectionURL string, table string) (*Client, e
 		return nil, fmt.Errorf("error listing columns for table: %w", err)
 	}
 	if len(columns) == 0 {
-		return nil, ErrTableNotFound
+		if !config.CreateTableIfNotExists {
+			return nil, ErrTableNotFound
+		}
+		// Try to create table
+		_, err := db.ExecContext(ctx, `
+			CREATE TABLE `+strings.ReplaceAll(pq.QuoteIdentifier(c.Table), "\"", "")+` (
+				sqlid int auto_increment NOT NULL,
+				CONSTRAINT Test2_PK PRIMARY KEY (sqlid)
+			)`)
+		if err != nil {
+			return nil, fmt.Errorf("error creating table since it does not exist: %w", err)
+		}
 	}
 
 	return c, nil

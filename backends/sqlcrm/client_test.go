@@ -18,10 +18,16 @@ import (
 func TestClient(t *testing.T) {
 	ctx := context.Background()
 
-	_, err := NewCRM(ctx, os.Getenv("TESTING_SQL_URL"), "doesnotexist")
+	_, err := NewCRM(ctx, Config{
+		ConnectionURL: os.Getenv("TESTING_SQL_URL"),
+		Table:         "doesnotexist",
+	})
 	require.ErrorIs(t, err, ErrTableNotFound)
 
-	c, err := NewCRM(ctx, os.Getenv("TESTING_SQL_URL"), "test")
+	c, err := NewCRM(ctx, Config{
+		ConnectionURL: os.Getenv("TESTING_SQL_URL"),
+		Table:         "test",
+	})
 	require.NoError(t, err)
 
 	// Try creating a new column
