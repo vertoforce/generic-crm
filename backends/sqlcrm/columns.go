@@ -39,14 +39,14 @@ exampleItemLoop:
 			// Check if it can be parsed as a date
 			_, err := dateparse.ParseAny(value.(string))
 			if err == nil {
-				fieldType = "Datetime"
+				fieldType = "Datetime NULL DEFAULT NULL"
 			}
 		case reflect.Int, reflect.Int32, reflect.Int64:
-			fieldType = "INT(11)"
+			fieldType = "INT(11) NULL DEFAULT NULL"
 		case reflect.Float32, reflect.Float64:
-			fieldType = "FLOAT(11)"
+			fieldType = "FLOAT(11) NULL DEFAULT NULL"
 		case reflect.TypeOf(time.Time{}).Kind():
-			fieldType = "Datetime"
+			fieldType = "Datetime NULL DEFAULT NULL"
 		case reflect.TypeOf(TimeDefaultNow{}).Kind():
 			fieldType = "Datetime DEFAULT now()"
 		}
@@ -54,7 +54,7 @@ exampleItemLoop:
 		case int64, int32, int:
 		case float64, float32:
 		}
-		a, err := c.DB.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD %s %s NULL DEFAULT NULL; ", c.Table, key, fieldType))
+		a, err := c.DB.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD `%s` %s; ", c.Table, key, fieldType))
 		if err != nil {
 			return err
 		}

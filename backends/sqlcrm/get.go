@@ -106,7 +106,7 @@ func fieldsToSQLWhere(fields map[string]interface{}) (query string, values []int
 	whereQueries := []string{}
 	whereValues := []interface{}{}
 	for key, value := range fields {
-		whereQueries = append(whereQueries, fmt.Sprintf("%s=?", key))
+		whereQueries = append(whereQueries, fmt.Sprintf("`%s`=?", key))
 		whereValues = append(whereValues, value)
 	}
 	return strings.Join(whereQueries, " AND "), whereValues

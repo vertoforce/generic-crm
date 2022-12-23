@@ -25,7 +25,7 @@ func (c *Client) UpdateItem(ctx context.Context, i crm.Item, updateFields map[st
 		return fmt.Errorf("failed to serialize update fields: %w", err)
 	}
 	for key, value := range serializedFields {
-		sets = append(sets, fmt.Sprintf("%s=?", key))
+		sets = append(sets, fmt.Sprintf("`%s`=?", key))
 		setValues = append(setValues, value)
 	}
 	setQuery := strings.Join(sets, ",")

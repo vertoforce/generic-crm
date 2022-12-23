@@ -45,7 +45,7 @@ func (c *Client) GetItems(ctx context.Context, items chan crm.Item, searchFields
 		// Get rows with a certain filter
 		searchFilters := []string{}
 		for key, value := range searchFields[0] {
-			searchFilters = append(searchFilters, fmt.Sprintf("%s='%s'", key, strings.ReplaceAll(fmt.Sprintf("%v", value), "'", "\\'")))
+			searchFilters = append(searchFilters, fmt.Sprintf("`%s`=`%s`", key, strings.ReplaceAll(fmt.Sprintf("%v", value), "'", "\\'")))
 		}
 		filterFormula := strings.Join(searchFilters, " AND ")
 		err = c.client.ListRecords(c.tableName, &itemsI, airtable.ListParameters{FilterByFormula: filterFormula})

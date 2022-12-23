@@ -36,7 +36,7 @@ func (c *Client) generateCreateQueryFromItem(ctx context.Context, i crm.Item) (q
 	fieldNames := []string{}
 	values = []interface{}{}
 	for key, value := range fields {
-		fieldNames = append(fieldNames, fmt.Sprintf("%s", key))
+		fieldNames = append(fieldNames, fmt.Sprintf("`%s`", key))
 		values = append(values, value)
 	}
 
