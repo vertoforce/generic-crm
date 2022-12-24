@@ -67,6 +67,8 @@ func NewCRM(ctx context.Context, config Config) (*Client, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error creating table since it does not exist: %w", err)
 		}
+		// Reset column cache
+		c.columnsCache.Clear()
 	}
 
 	return c, nil
