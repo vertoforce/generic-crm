@@ -2,6 +2,7 @@ package sqlcrm
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -25,6 +26,7 @@ func TestSerialize(t *testing.T) {
 		"stringQuoted":     "\"test\"",
 		"stringInByteForm": []byte("test"),
 		"empty":            "",
+		"float2":           "number: 1,010.3",
 	}
 
 	// Try to serialize and deserialize and make sure the result is the same as the original
@@ -33,11 +35,18 @@ func TestSerialize(t *testing.T) {
 			MaxAge:   time.Second * 60,
 			Capacity: 1,
 		}),
+		Mutex: &sync.Mutex{},
 	}
-	c.columnsCache.Set("columns", map[string]string{})
+	c.columnsCache.Set("columns", map[string]string{
+		"float2": "float(11)",
+	})
 	serializedFields, err := c.serializeFields(context.Background(), test)
 	require.NoError(t, err)
 	processed := deserializeFields(serializedFields)
+
+	// new values we expect
+	test["float2"] = 1010.3
 	test["stringInByteForm"] = interface{}(string("test"))
+
 	require.Equal(t, test, processed)
 }

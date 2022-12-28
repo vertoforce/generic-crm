@@ -5,10 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/araddon/dateparse"
+)
+
+var (
+	anyNumber           = regexp.MustCompile(`\d+(\.\d+)?`)
+	sqlNumberQuantifier = regexp.MustCompile(`\(\d+\)`)
 )
 
 // serializeFields Converts an item's fields to how they will be stored in the crm.
@@ -25,14 +32,27 @@ func (c *Client) serializeFields(ctx context.Context, fields map[string]interfac
 		if key == "" {
 			continue
 		}
-		sqlDataType := columns[key]
+		sqlDataType := strings.ToLower(columns[key])
+		sqlDataType = sqlNumberQuantifier.ReplaceAllString(sqlDataType, "")
 
 		// Convert the value if it needs to be changed
 		switch t := reflect.TypeOf(value); {
 		case t == nil:
 			continue
 		case t.Kind() == reflect.String:
-			switch strings.ToLower(sqlDataType) {
+			switch sqlDataType {
+			case "float", "int":
+				// Find any number in this string and use it
+				anyN := anyNumber.FindString(CleanNumber(value.(string)))
+				if anyN == "" {
+					ret[key] = 0
+				}
+				switch sqlDataType {
+				case "float":
+					ret[key], _ = strconv.ParseFloat(anyN, 64)
+				case "int":
+					ret[key], _ = strconv.ParseInt(value.(string), 10, 64)
+				}
 			case "datetime":
 				date, err := dateparse.ParseAny(value.(string))
 				if err != nil {
