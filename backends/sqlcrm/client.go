@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -16,6 +17,7 @@ type Client struct {
 	DB           *sqlx.DB
 	Table        string
 	columnsCache *agecache.Cache[string, map[string]string]
+	*sync.Mutex
 }
 
 type Config struct {
@@ -47,6 +49,7 @@ func NewCRM(ctx context.Context, config Config) (*Client, error) {
 			MaxAge:   time.Minute,
 			Capacity: 1,
 		}),
+		Mutex: &sync.Mutex{},
 	}
 
 	// Make sure table exists

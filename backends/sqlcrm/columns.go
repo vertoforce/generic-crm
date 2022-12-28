@@ -21,8 +21,14 @@ func (c *Client) UpdateColumns(ctx context.Context, exampleItem crm.Item) error 
 		return err
 	}
 
+	c.Lock()
+	defer c.Unlock()
+
 exampleItemLoop:
 	for key, value := range exampleItem.GetFields() {
+		if key == "" {
+			continue
+		}
 		for columnName := range columns {
 			if strings.ToLower(key) == strings.ToLower(columnName) {
 				// We already have this
@@ -55,17 +61,14 @@ exampleItemLoop:
 		case float64, float32:
 		}
 		a, err := c.DB.QueryxContext(ctx, fmt.Sprintf("ALTER TABLE `%s` ADD `%s` %s; ", c.Table, key, fieldType))
+
+		// Clear cache
+		c.columnsCache.Clear()
+
 		if err != nil {
 			return err
 		}
 		a.Close()
-	}
-
-	// Re update column cache
-	c.columnsCache.Clear()
-	_, err = c.getColumns(ctx)
-	if err != nil {
-		return fmt.Errorf("error re-updating columns cache: %w", err)
 	}
 
 	return nil
@@ -73,6 +76,9 @@ exampleItemLoop:
 
 // getColumns returns a map of column name to it's type
 func (c *Client) getColumns(ctx context.Context) (map[string]string, error) {
+	c.Lock()
+	defer c.Unlock()
+
 	columns, found := c.columnsCache.Get("columns")
 	if found {
 		return columns, nil

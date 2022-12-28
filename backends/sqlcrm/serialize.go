@@ -22,6 +22,9 @@ func (c *Client) serializeFields(ctx context.Context, fields map[string]interfac
 
 	ret := map[string]interface{}{}
 	for key, value := range fields {
+		if key == "" {
+			continue
+		}
 		sqlDataType := columns[key]
 
 		// Convert the value if it needs to be changed
