@@ -19,7 +19,7 @@ var dateStrings = regexp.MustCompile(`(?i)(jan|feb|mar|apr|may|jun|jul|aug|sep|n
 // UpdateColumns would add new columns based on the example item.
 // Currently not supported
 func (c *Client) UpdateColumns(ctx context.Context, exampleItem crm.Item) error {
-	columns, err := c.getColumns(ctx)
+	columns, err := c.GetColumns(ctx)
 	if err != nil {
 		return err
 	}
@@ -85,8 +85,8 @@ func getFieldType(value interface{}) string {
 	return fieldType
 }
 
-// getColumns returns a map of column name to it's type
-func (c *Client) getColumns(ctx context.Context) (map[string]string, error) {
+// GetColumns returns a map of column name to it's type
+func (c *Client) GetColumns(ctx context.Context) (map[string]string, error) {
 	c.Lock()
 	defer c.Unlock()
 

@@ -53,7 +53,7 @@ func NewCRM(ctx context.Context, config Config) (*Client, error) {
 	}
 
 	// Make sure table exists
-	columns, err := c.getColumns(ctx)
+	columns, err := c.GetColumns(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error listing columns for table: %w", err)
 	}

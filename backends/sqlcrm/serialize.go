@@ -22,7 +22,7 @@ var (
 // It basically serializes hard to store fields to something sql can store
 // It will also reference the existing sql schema to know what datatypes the incoming data should be transformed in to.
 func (c *Client) serializeFields(ctx context.Context, fields map[string]interface{}) (map[string]interface{}, error) {
-	columns, err := c.getColumns(ctx)
+	columns, err := c.GetColumns(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting columns: %w", err)
 	}
